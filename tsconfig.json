@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "lib",
+    "esModuleInterop": true,
+    "target": "ES5",
+    "moduleResolution": "node",
+    "declaration": true,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "apollo-typed-documents": ["src"]
+    }
+  },
+  "include": ["src"]
+}

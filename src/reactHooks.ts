@@ -1,0 +1,32 @@
+declare module "@apollo/react-hooks" {
+  import {
+    OperationVariables,
+    TypedDocumentNode,
+  } from "apollo-typed-documents";
+  import { QueryResult } from "@apollo/react-common";
+  import {
+    MutationHookOptions,
+    MutationTuple,
+    QueryHookOptions,
+  } from "@apollo/react-hooks/lib/types";
+
+  export * from "@apollo/react-hooks/lib/index";
+
+  export function useQuery<
+    TData,
+    TVariables extends OperationVariables,
+    TOptions extends QueryHookOptions<TData, TVariables>
+  >(
+    query: TypedDocumentNode<TVariables, TData>,
+    options?: TOptions
+  ): QueryResult<TData, TVariables>;
+
+  export function useMutation<
+    TData,
+    TVariables extends OperationVariables,
+    TOptions extends MutationHookOptions<TData, TVariables>
+  >(
+    mutation: TypedDocumentNode<TVariables, TData>,
+    options?: TOptions
+  ): MutationTuple<TData, TVariables>;
+}

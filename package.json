@@ -1,0 +1,51 @@
+{
+  "name": "apollo-typed-documents",
+  "version": "0.0.1",
+  "description": "Get type safety for your apollo documents.",
+  "keywords": [
+    "apollo",
+    "graphql",
+    "codegen"
+  ],
+  "homepage": "https://github.com/rubengrill/apollo-typed-documents",
+  "repository": {
+    "url": "https://github.com/rubengrill/apollo-typed-documents",
+    "type": "git"
+  },
+  "author": "Ruben Grill <ruben@purelabs.io>",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "files": [
+    "src",
+    "lib"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "yarn run build",
+    "postversion": "git push && git push --tags"
+  },
+  "peerDependencies": {
+    "graphql": "^14.6.0",
+    "pascal-case": "^3.1.1"
+  },
+  "devDependencies": {
+    "@apollo/react-common": "^3.1.4",
+    "@apollo/react-hooks": "^3.1.4",
+    "@graphql-codegen/plugin-helpers": "^1.13.2",
+    "@types/node": "^13.11.1",
+    "@types/react": "^16.9.34",
+    "apollo-boost": "^0.4.7",
+    "graphql": "^14.6.0",
+    "import-sort-style-module": "^6.0.0",
+    "pascal-case": "^3.1.1",
+    "prettier": "^2.0.4",
+    "prettier-plugin-import-sort": "^0.0.4",
+    "typescript": "^3.8.3"
+  },
+  "importSort": {
+    ".ts": {
+      "style": "module",
+      "parser": "typescript"
+    }
+  }
+}
