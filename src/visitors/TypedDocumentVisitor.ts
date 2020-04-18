@@ -4,15 +4,15 @@ import { pascalCase } from "pascal-case";
 export type Config = { typesModule: string };
 
 interface OutputNode {
-  output: String;
+  output: string;
 }
 
 export default class TypedDocumentVisitor {
-  output: String[];
-  basename: String;
+  output: string[];
+  basename: string;
   config: Config;
 
-  constructor(output: String[], basename: String, config: Config) {
+  constructor(output: string[], basename: string, config: Config) {
     this.output = output;
     this.basename = basename;
     this.config = config;
@@ -21,7 +21,7 @@ export default class TypedDocumentVisitor {
   get Document() {
     return {
       leave: (node: DocumentNode) => {
-        const output: String[] = [];
+        const output: string[] = [];
 
         output.push(`declare module "*/${this.basename}" {`);
         output.push(
@@ -49,7 +49,7 @@ export default class TypedDocumentVisitor {
     return {
       enter: (_node: OperationDefinitionNode) => {
         const node = _node as OperationDefinitionNode & OutputNode;
-        const output: String[] = [];
+        const output: string[] = [];
         const typeName = pascalCase(node.name!.value);
         const typeNameSuffix = pascalCase(node.operation);
 

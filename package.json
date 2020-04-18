@@ -22,7 +22,8 @@
   "scripts": {
     "build": "tsc",
     "prepare": "yarn run build",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "test": "jest"
   },
   "peerDependencies": {
     "graphql": "^14.6.0",
@@ -31,19 +32,25 @@
   "devDependencies": {
     "@apollo/react-common": "^3.1.4",
     "@apollo/react-hooks": "^3.1.4",
+    "@graphql-codegen/core": "^1.13.2",
     "@graphql-codegen/plugin-helpers": "^1.13.2",
+    "@types/jest": "^25.2.1",
     "@types/node": "^13.11.1",
     "@types/react": "^16.9.34",
+    "@types/tmp": "^0.1.0",
     "apollo-boost": "^0.4.7",
     "graphql": "^14.6.0",
     "import-sort-style-module": "^6.0.0",
+    "jest": "^25.3.0",
     "pascal-case": "^3.1.1",
     "prettier": "^2.0.4",
     "prettier-plugin-import-sort": "^0.0.4",
+    "tmp": "^0.1.0",
+    "ts-jest": "^25.3.1",
     "typescript": "^3.8.3"
   },
   "importSort": {
-    ".ts": {
+    ".js,.ts": {
       "style": "module",
       "parser": "typescript"
     }

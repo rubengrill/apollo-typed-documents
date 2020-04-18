@@ -12,7 +12,7 @@ import TypedVisitor from "./visitors/TypedVisitor";
 export type Config = { typesModule: string };
 
 export const plugin: PluginFunction<Config> = (schema, documents, config) => {
-  const output: String[] = [];
+  const output: string[] = [];
 
   documents.forEach((document) => {
     const basename = path.basename(document.location!);

@@ -12,15 +12,29 @@ export interface ApolloMock<TVariables extends OperationVariables, TData> {
   };
 }
 
-export default (operations: any) => <
+export interface ApolloMockOptions {
+  addTypename?: boolean;
+}
+
+export type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P]>;
+};
+
+export type ApolloMockFn = <TVariables extends OperationVariables, TData>(
+  documentNode: TypedDocumentNode<TVariables, TData>,
+  variables?: RecursivePartial<TVariables>,
+  data?: RecursivePartial<TData>,
+  options?: ApolloMockOptions
+) => ApolloMock<TVariables, TData>;
+
+export default (operations: any): ApolloMockFn => <
   TVariables extends OperationVariables,
-  TData,
-  TInput extends TVariables = TVariables,
-  TOutput extends TData = TData
+  TData
 >(
   documentNode: TypedDocumentNode<TVariables, TData>,
-  variables: TInput,
-  data: TOutput
+  variables?: RecursivePartial<TVariables>,
+  data?: RecursivePartial<TData>,
+  { addTypename = true }: ApolloMockOptions = {}
 ): ApolloMock<TVariables, TData> => {
   const definitionNode = documentNode.definitions[0];
   const operationNode = definitionNode as OperationDefinitionNode;
@@ -34,10 +48,10 @@ export default (operations: any) => <
   return {
     request: {
       query: documentNode,
-      variables,
+      variables: operation.variables(variables || undefined),
     },
     result: {
-      data: operation(data),
+      data: operation.data(data || undefined, { addTypename }),
     },
   };
 };

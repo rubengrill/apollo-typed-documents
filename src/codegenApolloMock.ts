@@ -6,7 +6,9 @@ import TypedVisitor from "./visitors/TypedVisitor";
 
 export const plugin: PluginFunction = (schema, documents) => {
   const documentNodes = documents.map((document) => document.document!);
-  const output: String[] = [];
+  const output: string[] = [];
+  const inputObjectTypeOutput: string[] = [];
+  const mockVisitor = new MockVisitor(output, inputObjectTypeOutput);
 
   output.push('import { createApolloMock } from "apollo-typed-documents";');
   output.push("const operations = {};");
@@ -14,11 +16,10 @@ export const plugin: PluginFunction = (schema, documents) => {
 
   documentNodes.forEach((documentNode) => {
     const typedVisitor = new TypedVisitor(schema);
-    const mockVisitor = new MockVisitor(output);
     const typedDocumentNode = visit(documentNode, typedVisitor);
 
     visit(typedDocumentNode, mockVisitor);
   });
 
-  return output.join("\n\n");
+  return [...output, ...inputObjectTypeOutput].join("\n\n");
 };

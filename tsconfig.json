@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "outDir": "lib",
     "esModuleInterop": true,
     "target": "ES5",
