@@ -27,6 +27,7 @@ export type ApolloMockFn = <TVariables extends OperationVariables, TData>(
   options?: ApolloMockOptions
 ) => ApolloMock<TVariables, TData>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default (operations: any): ApolloMockFn => <
   TVariables extends OperationVariables,
   TData
@@ -38,7 +39,12 @@ export default (operations: any): ApolloMockFn => <
 ): ApolloMock<TVariables, TData> => {
   const definitionNode = documentNode.definitions[0];
   const operationNode = definitionNode as OperationDefinitionNode;
-  const operationName = operationNode.name!.value;
+
+  if (!operationNode.name) {
+    throw new Error("Missing operation name");
+  }
+
+  const operationName = operationNode.name.value;
   const operation = operations[operationName];
 
   if (!operation) {

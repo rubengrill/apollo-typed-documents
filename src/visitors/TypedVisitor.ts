@@ -15,7 +15,7 @@ import {
   isScalarType,
 } from "graphql";
 
-export interface TypedField<ObjectType> {
+interface TypedBaseField<ObjectType, T extends TypedBaseField<ObjectType, T>> {
   kind: string;
   name: string;
   parentObjectType?: ObjectType;
@@ -26,18 +26,20 @@ export interface TypedField<ObjectType> {
   enumType?: GraphQLEnumType;
   objectType?: ObjectType;
 
-  fields: TypedField<ObjectType>[];
+  fields: T[];
 }
 
-export interface TypedInputField extends TypedField<GraphQLInputObjectType> {
+export interface TypedInputField
+  extends TypedBaseField<GraphQLInputObjectType, TypedInputField> {
   kind: "TypedInputField";
-  fields: TypedInputField[];
 }
 
-export interface TypedOutputField extends TypedField<GraphQLObjectType> {
+export interface TypedOutputField
+  extends TypedBaseField<GraphQLObjectType, TypedOutputField> {
   kind: "TypedOutputField";
-  fields: TypedOutputField[];
 }
+
+export type TypedField = TypedInputField | TypedOutputField;
 
 export interface TypedVariableDefinitionNode extends VariableDefinitionNode {
   typed: TypedInputField;
@@ -50,7 +52,7 @@ export interface TypedFieldNode extends FieldNode {
 export default class TypedVisitor {
   schema: GraphQLSchema;
   types: GraphQLObjectType[] = [];
-  type: GraphQLObjectType = null as any;
+  type?: GraphQLObjectType;
   inputObjectTypeFields: {
     [inputObjectTypeName: string]: TypedInputField[];
   } = {};
@@ -67,6 +69,13 @@ export default class TypedVisitor {
   popType() {
     this.types.splice(this.types.length - 1, 1);
     this.type = this.types[this.types.length - 1];
+  }
+
+  getType() {
+    if (!this.type) {
+      throw new Error("No type set");
+    }
+    return this.type;
   }
 
   getInputObjectTypeFields(type: GraphQLInputObjectType): TypedInputField[] {
@@ -119,16 +128,24 @@ export default class TypedVisitor {
   get OperationDefinition() {
     return {
       enter: (node: OperationDefinitionNode) => {
+        let type: GraphQLObjectType | undefined | null;
+
         switch (node.operation) {
           case "mutation":
-            this.putType(this.schema.getMutationType()!);
+            type = this.schema.getMutationType();
             break;
           case "subscription":
-            this.putType(this.schema.getSubscriptionType()!);
+            type = this.schema.getSubscriptionType();
             break;
           default:
-            this.putType(this.schema.getQueryType()!);
+            type = this.schema.getQueryType();
         }
+
+        if (!type) {
+          throw new Error(`Couldn't find type for ${node.operation}`);
+        }
+
+        this.putType(type);
       },
       leave: () => {
         this.popType();
@@ -187,7 +204,7 @@ export default class TypedVisitor {
     return {
       enter: (_node: FieldNode) => {
         const node = _node as TypedFieldNode;
-        const fields = this.type.getFields();
+        const fields = this.getType().getFields();
         const field = fields[node.name.value];
         let type = field.type;
 
@@ -228,7 +245,7 @@ export default class TypedVisitor {
         if (node.typed.objectType) {
           this.popType();
 
-          const selections = node.selectionSet!.selections;
+          const selections = node.selectionSet?.selections || [];
 
           node.typed.fields = selections
             .filter((node) => node.kind === "Field")

@@ -5,7 +5,13 @@ import MockVisitor from "./visitors/MockVisitor";
 import TypedVisitor from "./visitors/TypedVisitor";
 
 export const plugin: PluginFunction = (schema, documents) => {
-  const documentNodes = documents.map((document) => document.document!);
+  const documentNodes = documents.map((document) => {
+    if (!document.document) {
+      throw new Error("Missing document node");
+    }
+    return document.document;
+  });
+
   const output: string[] = [];
   const inputObjectTypeOutput: string[] = [];
   const mockVisitor = new MockVisitor(output, inputObjectTypeOutput);

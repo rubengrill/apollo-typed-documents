@@ -15,14 +15,21 @@ export const plugin: PluginFunction<Config> = (schema, documents, config) => {
   const output: string[] = [];
 
   documents.forEach((document) => {
-    const basename = path.basename(document.location!);
+    if (!document.location) {
+      throw new Error("Missing document location");
+    }
+    if (!document.document) {
+      throw new Error("Missing document node");
+    }
+
+    const basename = path.basename(document.location);
     const typedVisitor = new TypedVisitor(schema);
     const typedDocumentVisitor = new TypedDocumentVisitor(
       output,
       basename,
       config
     );
-    const typedDocumentNode = visit(document.document!, typedVisitor);
+    const typedDocumentNode = visit(document.document, typedVisitor);
 
     visit(typedDocumentNode, typedDocumentVisitor);
   });

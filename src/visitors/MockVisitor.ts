@@ -19,7 +19,11 @@ export default class MockVisitor {
   get OperationDefinition() {
     return {
       leave: (node: OperationDefinitionNode) => {
-        const name = node.name!.value;
+        if (!node.name) {
+          throw new Error("Operation doesn't have a name");
+        }
+
+        const name = node.name.value;
         const output: string[] = [];
 
         output.push(`operations.${name} = {};\n`);
@@ -53,8 +57,8 @@ export default class MockVisitor {
   }
 
   getTypedFieldSetOutput(
-    fields: TypedField<any>[],
-    parent?: TypedField<any>,
+    fields: TypedField[],
+    parent?: TypedField,
     { indent = 0, input = false } = {}
   ) {
     const output: string[] = [];
@@ -84,8 +88,8 @@ export default class MockVisitor {
         .join(",\n")
     );
 
-    if (parent && !input) {
-      const typename = parent.objectType!.name;
+    if (parent && parent.objectType && !input) {
+      const typename = parent.objectType.name;
 
       output.push(",\n");
       output.push(" ".repeat(indent + 2));
@@ -106,8 +110,12 @@ export default class MockVisitor {
     return output.join("");
   }
 
-  getTypedInputFieldSetOutput(field: TypedField<any>) {
-    const inputObjectTypeName = field.objectType!.name;
+  getTypedInputFieldSetOutput(field: TypedField) {
+    if (!field.objectType) {
+      throw new Error("Method must only be used for object type fields");
+    }
+
+    const inputObjectTypeName = field.objectType.name;
 
     if (!this.inputObjectTypeOutputState[inputObjectTypeName]) {
       const output: string[] = [];
@@ -125,10 +133,7 @@ export default class MockVisitor {
     return inputObjectTypeName;
   }
 
-  getTypedFieldOutput(
-    field: TypedField<any>,
-    { indent = 0, input = false } = {}
-  ) {
+  getTypedFieldOutput(field: TypedField, { indent = 0, input = false } = {}) {
     const name = field.name;
     const output: string[] = [];
 

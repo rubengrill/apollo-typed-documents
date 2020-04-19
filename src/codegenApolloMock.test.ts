@@ -12,6 +12,7 @@ expect.addSnapshotSerializer({
   test(value) {
     return !!(value?.request && value?.result);
   },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   print(value: any) {
     const {
       request: { variables },
@@ -88,6 +89,7 @@ const getApolloMock = (output: string) => {
 
   fs.writeFileSync(tempFile.name, output);
 
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const module = require(tempFile.name);
 
   return module.default;
