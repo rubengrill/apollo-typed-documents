@@ -3,6 +3,7 @@ module.exports = {
   testEnvironment: "node",
   testPathIgnorePatterns: ["<rootDir>/lib/", "<rootDir>/node_modules/"],
   moduleNameMapper: {
-    "apollo-typed-documents": "<rootDir>/src",
+    "^apollo-typed-documents$": "<rootDir>/src",
   },
+  collectCoverageFrom: ["src/**/*.ts"],
 };
