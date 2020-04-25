@@ -7,9 +7,19 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
     "plugin:prettier/recommended"
   ],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": "off"
+  },
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
   }
 }

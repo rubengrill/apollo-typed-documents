@@ -25,6 +25,9 @@ export default class TypedDocumentVisitor {
         const operationOutputValues = Object.values(this.operationOutput);
 
         output.push(`declare module "*/${this.basename}" {\n`);
+        output.push(
+          '  import { TypedDocumentNode } from "apollo-typed-documents";\n'
+        );
 
         operationOutputValues.forEach((operationOutput) => {
           output.push(operationOutput);
@@ -33,7 +36,7 @@ export default class TypedDocumentVisitor {
 
         if (operationOutputKeys.length === 1) {
           const [operationName] = operationOutputKeys;
-          output.push(`  export default ${operationName}\n`);
+          output.push(`  export default ${operationName};\n`);
         }
 
         output.push(`}`);
@@ -56,13 +59,10 @@ export default class TypedDocumentVisitor {
         const output: string[] = [];
 
         output.push(
-          '  import { TypedDocumentNode } from "apollo-typed-documents"\n'
+          `  import { ${typeName}${typeNameSuffix}, ${typeName}${typeNameSuffix}Variables } from "${this.config.typesModule}";\n`
         );
         output.push(
-          `  import { ${typeName}${typeNameSuffix}, ${typeName}${typeNameSuffix}Variables } from "${this.config.typesModule}"\n`
-        );
-        output.push(
-          `  export const ${operationName}: TypedDocumentNode<${typeName}${typeNameSuffix}Variables, ${typeName}${typeNameSuffix}>`
+          `  export const ${operationName}: TypedDocumentNode<${typeName}${typeNameSuffix}Variables, ${typeName}${typeNameSuffix}>;`
         );
 
         this.operationOutput[operationName] = output.join("");

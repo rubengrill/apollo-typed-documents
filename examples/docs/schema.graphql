@@ -1,0 +1,34 @@
+type Author {
+  id: ID!
+  name: String!
+  description: String
+  books: [Book!]!
+}
+
+type Book {
+  id: ID!
+  title: String!
+}
+
+input AuthorInput {
+  name: String!
+  description: String
+  books: [BookInput!]!
+}
+
+input BookInput {
+  title: String!
+}
+
+type Query {
+  authors: [Author!]!
+}
+
+type Mutation {
+  createAuthor(input: AuthorInput!): Author!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
