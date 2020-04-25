@@ -22,20 +22,23 @@ The difference is that is uses generic types, so that you have type safety with 
 
 `codegen.yml`:
 
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/codegenTypedDocuments.yml) -->
+<!-- The below code snippet is automatically added from ./examples/docs/codegenTypedDocuments.yml -->
 ```yml
-schema: http://localhost:8000/graphql/
-documents: ./src/**/*.graphql
+schema: ./schema.graphql
+documents: ./documents/*.graphql
 generates:
-  ./src/codegenTypedDocuments.d.ts:
+  ./codegenTypedDocuments.d.ts:
     plugins:
       - apollo-typed-documents/lib/codegenTypedDocuments
     config:
       typesModule: "@codegen-types"
-  ./src/codegenTypes.ts:
+  ./codegenTypes.ts:
     plugins:
       - typescript
       - typescript-operations
 ```
+<!-- AUTO-GENERATED-CONTENT:END -->
 
 `tsconfig.json`:
 
@@ -44,7 +47,7 @@ generates:
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@codegen-types": ["./src/codegenTypes.ts"],
+      "@codegen-types": ["codegenTypes.ts"],
       "@apollo/react-hooks": [
         "./node_modules/apollo-typed-documents/lib/reactHooks.d.ts"
       ]
@@ -59,73 +62,110 @@ This alias is required, because in ambient module declarations (`.d.ts`) only no
 
 `@apollo/react-hooks` overrides the types to have generic hooks in your code: [reference](src/reactHooks.ts)
 
+If you don't have a TypeScript project but instead just want to get type safety and code completion,
+the configuration needs to have more options set: [reference](examples/docs/tsconfig.json)
+
 ### Example
 
-`passwordChangeMutation.graphql`:
+`./documents/authors.graphql`:
 
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/documents/authors.graphql) -->
+<!-- The below code snippet is automatically added from ./examples/docs/documents/authors.graphql -->
 ```graphql
-mutation passwordChange(
-  $oldPassword: String!
-  $newPassword1: String!
-  $newPassword2: String!
-) {
-  passwordChange(
-    oldPassword: $oldPassword
-    newPassword1: $newPassword1
-    newPassword2: $newPassword2
-  ) {
-    success
-    errors
+query authors {
+  authors {
+    id
+    name
+    description
+    books {
+      id
+      title
+    }
   }
 }
 ```
+<!-- AUTO-GENERATED-CONTENT:END -->
 
-`codegenTypedDocuments.d.ts` (generated):
+`./documents/createAuthor.graphql`:
 
-```ts
-declare module "*/passwordChangeMutation.graphql" {
-  import { TypedDocumentNode } from "apollo-typed-documents";
-  import {
-    PasswordChangeMutation,
-    PasswordChangeMutationVariables,
-  } from "@codegen-types";
-  export const passwordChange: TypedDocumentNode<
-    PasswordChangeMutationVariables,
-    PasswordChangeMutation
-  >;
-  export default passwordChange;
-}
-```
-
-`changePassword.js`:
-
-```js
-import passwordChangeMutation from "./passwordChangeMutation.graphql";
-import { useMutation } from "@apollo/react-hooks";
-
-const ChangePassword = () => {
-  const [changePassword] = useMutation(
-    passwordChangeMutation,
-    {
-      onCompleted: data => {
-        // Type of `data` is inferred (PasswordChangeMutation)
-        // IDE / tsc complains invalid access of data
-        // IDE can provide code completion (IntelliSense)
-        if (data.passwordChange?.success) {
-          history.push("/")
-        }
-      }
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/documents/createAuthor.graphql) -->
+<!-- The below code snippet is automatically added from ./examples/docs/documents/createAuthor.graphql -->
+```graphql
+mutation createAuthor($input: AuthorInput!) {
+  createAuthor(input: $input) {
+    id
+    name
+    description
+    books {
+      id
+      title
     }
-  )
-
-  React.useEffect(() => {
-    // Type of variables is inferred (PasswordChangeMutationVariables)
-    verifyAccount({ variables: { token } })
-  })
-
-  return ...
+  }
 }
 ```
+<!-- AUTO-GENERATED-CONTENT:END -->
+
+`./codegenTypedDocuments.d.ts` (generated):
+
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/codegenTypedDocuments.d.ts) -->
+<!-- The below code snippet is automatically added from ./examples/docs/codegenTypedDocuments.d.ts -->
+```ts
+declare module "*/authors.graphql" {
+  import { TypedDocumentNode } from "apollo-typed-documents";
+  import { AuthorsQuery, AuthorsQueryVariables } from "@codegen-types";
+  export const authors: TypedDocumentNode<AuthorsQueryVariables, AuthorsQuery>;
+  export default authors;
+}
+
+declare module "*/createAuthor.graphql" {
+  import { TypedDocumentNode } from "apollo-typed-documents";
+  import { CreateAuthorMutation, CreateAuthorMutationVariables } from "@codegen-types";
+  export const createAuthor: TypedDocumentNode<CreateAuthorMutationVariables, CreateAuthorMutation>;
+  export default createAuthor;
+}
+```
+<!-- AUTO-GENERATED-CONTENT:END -->
+
+`./AuthorList.js`:
+
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/AuthorList.js) -->
+<!-- The below code snippet is automatically added from ./examples/docs/AuthorList.js -->
+```js
+import { useMutation, useQuery } from "@apollo/react-hooks";
+import React from "react";
+
+import authorsQuery from "./documents/authors.graphql";
+import createAuthorMutation from "./documents/createAuthor.graphql";
+
+const AuthorList = () => {
+  // Type of `data` is inferred (AuthorsQuery)
+  const { data } = useQuery(authorsQuery);
+  const [createAuthor] = useMutation(createAuthorMutation);
+
+  return (
+    <>
+      <ul>
+        {data?.authors.map((author) => (
+          <li key={author.id}>{author.name}</li>
+        ))}
+      </ul>
+      <button
+        onClick={() =>
+          // Type of variables is inferred (CreateAuthorMutationVariables)
+          createAuthor({
+            variables: { input: { name: "Foo", books: [{ title: "Bar" }] } },
+          })
+        }
+      >
+        Add
+      </button>
+    </>
+  );
+};
+
+export default AuthorList;
+```
+<!-- AUTO-GENERATED-CONTENT:END -->
 
 ### Notes for `create-react-app` users
 
@@ -155,9 +195,9 @@ Add to `.babelrc`:
 }
 ```
 
-Also, if you have a `create-react-app` project without TypeScript, the `tsconfig.json` must not be placed in your app root folder, because `create-react-app` uses this file to detect a TypeScript project [reference](https://github.com/facebook/create-react-app/blob/v3.4.1/packages/react-scripts/scripts/utils/verifyTypeScriptSetup.js#L49).
+Also, if you have a `create-react-app` project without TypeScript, the `tsconfig.json` must not be placed in your app root folder, because `create-react-app` uses this file to detect a TypeScript project: [reference](https://github.com/facebook/create-react-app/blob/v3.4.1/packages/react-scripts/scripts/utils/verifyTypeScriptSetup.js#L49).
 
-All `.ts`/`.d.ts` files must be outside of your `src` folder [reference](https://github.com/facebook/create-react-app/blob/v3.4.1/packages/react-scripts/scripts/utils/verifyTypeScriptSetup.js#L50)
+All `.ts`/`.d.ts` files must be outside of your `src` folder: [reference](https://github.com/facebook/create-react-app/blob/v3.4.1/packages/react-scripts/scripts/utils/verifyTypeScriptSetup.js#L50)
 
 A solution is to put the `tsconfig.json` in the parent folder:
 
@@ -214,9 +254,17 @@ Creates a helper method to easily create mocks for Apollo `MockedProvider` (http
 
 The returned object is guaranteed to conform to the GraphQL Schema of the query / mutation: [reference](src/createApolloMock.ts).
 
-For non-null fields which are not provided (in data / variables), it will return a default value (e.g. `"Author-id"`).
+For required (non-null) fields which are not provided (in data / variables), it will use a default value (e.g. `"Author-id"`).
+
+For optional fields which are not provided (in data / variables), it will use `undefined` for variables and `null` for data.
 
 Works for any nested selections (data) and any nested inputs (variables).
+
+It will include `__typename` in data by default. This can be deactivated as an option:
+
+```js
+apolloMock(documentNode, variables, data, { addTypename: false });
+```
 
 When used together with `codegenTypedDocuments` the data and variables are type checked (type inference).
 
@@ -224,8 +272,8 @@ When used together with `codegenTypedDocuments` the data and variables are type 
 
 `codegen.yml`
 
-<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/codegen.yml) -->
-<!-- The below code snippet is automatically added from ./examples/docs/codegen.yml -->
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/codegenApolloMock.yml) -->
+<!-- The below code snippet is automatically added from ./examples/docs/codegenApolloMock.yml -->
 ```yml
 schema: ./schema.graphql
 documents: ./documents/*.graphql
@@ -247,7 +295,7 @@ type Author {
   id: ID!
   name: String!
   description: String
-  books: [Book]!
+  books: [Book!]!
 }
 
 type Book {
@@ -258,7 +306,7 @@ type Book {
 input AuthorInput {
   name: String!
   description: String
-  books: [BookInput]!
+  books: [BookInput!]!
 }
 
 input BookInput {
@@ -266,7 +314,7 @@ input BookInput {
 }
 
 type Query {
-  authors: [Author]!
+  authors: [Author!]!
 }
 
 type Mutation {
@@ -317,6 +365,10 @@ mutation createAuthor($input: AuthorInput!) {
 }
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
+
+`./apolloMock.js` (generated):
+
+See: [reference](examples/docs/apolloMock.js)
 
 `./apolloMock.test.js`:
 

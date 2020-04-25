@@ -2,7 +2,7 @@ type Author {
   id: ID!
   name: String!
   description: String
-  books: [Book]!
+  books: [Book!]!
 }
 
 type Book {
@@ -13,7 +13,7 @@ type Book {
 input AuthorInput {
   name: String!
   description: String
-  books: [BookInput]!
+  books: [BookInput!]!
 }
 
 input BookInput {
@@ -21,7 +21,7 @@ input BookInput {
 }
 
 type Query {
-  authors: [Author]!
+  authors: [Author!]!
 }
 
 type Mutation {
