@@ -17,12 +17,12 @@ const AuthorList = () => {
         ))}
       </ul>
       <button
-        onClick={() =>
-          // Type of variables is inferred (CreateAuthorMutationVariables)
+        onClick={() => {
           createAuthor({
+            // Type of variables is inferred (CreateAuthorMutationVariables)
             variables: { input: { name: "Foo", books: [{ title: "Bar" }] } },
-          })
-        }
+          });
+        }}
       >
         Add
       </button>

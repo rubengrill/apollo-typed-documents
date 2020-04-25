@@ -150,12 +150,12 @@ const AuthorList = () => {
         ))}
       </ul>
       <button
-        onClick={() =>
-          // Type of variables is inferred (CreateAuthorMutationVariables)
+        onClick={() => {
           createAuthor({
+            // Type of variables is inferred (CreateAuthorMutationVariables)
             variables: { input: { name: "Foo", books: [{ title: "Bar" }] } },
-          })
-        }
+          });
+        }}
       >
         Add
       </button>
@@ -380,7 +380,7 @@ import authors from "./documents/authors.graphql";
 import createAuthor from "./documents/createAuthor.graphql";
 
 describe("apolloMock", () => {
-  it("procudes the minimal output that is valid according to graphql schema", () => {
+  it("produces the minimal output that is valid according to graphql schema", () => {
     expect(apolloMock(authors, {}, {})).toEqual({
       request: {
         query: authors,
