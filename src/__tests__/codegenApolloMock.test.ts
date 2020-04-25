@@ -5,8 +5,8 @@ import { Types } from "@graphql-codegen/plugin-helpers";
 import { DocumentNode, buildSchema, parse, printSchema } from "graphql";
 import tmp from "tmp";
 
-import * as codegenApolloMock from "./codegenApolloMock";
-import { ApolloMockFn } from "./createApolloMock";
+import * as codegenApolloMock from "../codegenApolloMock";
+import { ApolloMockFn } from "../createApolloMock";
 
 expect.addSnapshotSerializer({
   test(value) {

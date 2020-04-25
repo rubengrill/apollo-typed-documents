@@ -1,9 +1,12 @@
 module.exports = {
-  preset: "ts-jest/presets/js-with-ts",
   testEnvironment: "node",
   testPathIgnorePatterns: ["<rootDir>/lib/", "<rootDir>/node_modules/"],
+  collectCoverageFrom: ["src/**/*.ts"],
   moduleNameMapper: {
     "^apollo-typed-documents$": "<rootDir>/src",
   },
-  collectCoverageFrom: ["src/**/*.ts"],
+  transform: {
+    "\\.(ts|js)$": "ts-jest",
+    "\\.graphql$": "jest-transform-graphql",
+  },
 };

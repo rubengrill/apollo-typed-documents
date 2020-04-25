@@ -2,7 +2,7 @@ import { codegen } from "@graphql-codegen/core";
 import { Types } from "@graphql-codegen/plugin-helpers";
 import { buildSchema, parse, printSchema } from "graphql";
 
-import * as codegenTypedDocuments from "./codegenTypedDocuments";
+import * as codegenTypedDocuments from "../codegenTypedDocuments";
 
 const schema = buildSchema(`
   type Author {

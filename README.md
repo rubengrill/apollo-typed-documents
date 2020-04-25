@@ -1,10 +1,10 @@
 # apollo-typed-documents
 
-Provides codegen plugins (https://graphql-code-generator.com/) for type safe apollo documents.
+Provides graphql-codegen plugins (https://graphql-code-generator.com/) for type safe GraphQL documents (`DocumentNode`).
 
 It allows functions to accept a generic `TypedDocumentNode<TVariables, TData>` so that types of other arguments or the return type can be inferred.
 
-It is helpful for typescript projects but also if used only within an IDE, e.g. it works extremely well with VSCode (uses typescript behind the scenes).
+It is helpful for TypeScript projects but also if used only within an IDE, e.g. it works extremely well with VSCode (uses TypeScript behind the scenes).
 
 ```sh
 $ yarn add apollo-typed-documents
@@ -24,7 +24,7 @@ The difference is that is uses generic types, so that you have type safety with 
 
 ```yml
 schema: http://localhost:8000/graphql/
-documents: ./src/**/*.gql
+documents: ./src/**/*.graphql
 generates:
   ./src/codegenTypedDocuments.d.ts:
     plugins:
@@ -44,7 +44,7 @@ generates:
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@codegen-types": ["./codegenTypes.ts"],
+      "@codegen-types": ["./src/codegenTypes.ts"],
       "@apollo/react-hooks": [
         "./node_modules/apollo-typed-documents/lib/reactHooks.d.ts"
       ]
@@ -53,7 +53,7 @@ generates:
 }
 ```
 
-`@codegen-types` points to the output of `typescript-operations` codegen plugin.
+`@codegen-types` points to the output of `typescript-operations` graphql-codegen plugin.
 
 This alias is required, because in ambient module declarations (`.d.ts`) only non relative imports are allowed.
 
@@ -61,7 +61,7 @@ This alias is required, because in ambient module declarations (`.d.ts`) only no
 
 ### Example
 
-`passwordChangeMutation.gql`:
+`passwordChangeMutation.graphql`:
 
 ```graphql
 mutation passwordChange(
@@ -83,7 +83,7 @@ mutation passwordChange(
 `codegenTypedDocuments.d.ts` (generated):
 
 ```ts
-declare module "*/passwordChangeMutation.gql" {
+declare module "*/passwordChangeMutation.graphql" {
   import { TypedDocumentNode } from "apollo-typed-documents";
   import {
     PasswordChangeMutation,
@@ -100,7 +100,7 @@ declare module "*/passwordChangeMutation.gql" {
 `changePassword.js`:
 
 ```js
-import passwordChangeMutation from "./passwordChangeMutation.gql";
+import passwordChangeMutation from "./passwordChangeMutation.graphql";
 import { useMutation } from "@apollo/react-hooks";
 
 const ChangePassword = () => {
@@ -118,7 +118,7 @@ const ChangePassword = () => {
     }
   )
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Type of variables is inferred (PasswordChangeMutationVariables)
     verifyAccount({ variables: { token } })
   })
@@ -131,7 +131,7 @@ const ChangePassword = () => {
 
 `create-react-app` uses `graphql.macro` for loading of `.graphql` files (https://create-react-app.dev/docs/loading-graphql-files/).
 
-Because the `codegenTypedDocuments` plugin generates ambient module declarations for those `.graphql` files, they must be imported as regular modules (`commonjs`), otherwise typescript can't know its type.
+Because the `codegenTypedDocuments` plugin generates ambient module declarations for those `.graphql` files, they must be imported as regular modules (`commonjs`), otherwise TypeScript can't know its type.
 
 You can use the babel plugin `babel-plugin-import-graphql`, but then you need to either `eject` or use `react-app-rewired`/`customize-cra`.
 
@@ -155,7 +155,7 @@ Add to `.babelrc`:
 }
 ```
 
-Also, if you have a `create-react-app` project without typescript, the `tsconfig.json` must not be placed in your app root folder, because `create-react-app` uses this file to detect a typescript project [reference](https://github.com/facebook/create-react-app/blob/v3.4.1/packages/react-scripts/scripts/utils/verifyTypeScriptSetup.js#L49).
+Also, if you have a `create-react-app` project without TypeScript, the `tsconfig.json` must not be placed in your app root folder, because `create-react-app` uses this file to detect a TypeScript project [reference](https://github.com/facebook/create-react-app/blob/v3.4.1/packages/react-scripts/scripts/utils/verifyTypeScriptSetup.js#L49).
 
 All `.ts`/`.d.ts` files must be outside of your `src` folder [reference](https://github.com/facebook/create-react-app/blob/v3.4.1/packages/react-scripts/scripts/utils/verifyTypeScriptSetup.js#L50)
 
@@ -212,110 +212,191 @@ An example `tsconfig.json`:
 
 Creates a helper method to easily create mocks for Apollo `MockedProvider` (https://www.apollographql.com/docs/react/api/react-testing/#mockedprovider).
 
-The returned object is guaranteed to conform to the GraphQL Schema [reference](src/createApolloMock.ts).
+The returned object is guaranteed to conform to the GraphQL Schema of the query / mutation: [reference](src/createApolloMock.ts).
 
-However it will only contain the fields which are selected in the query / mutation.
+For non-null fields which are not provided (in data / variables), it will return a default value (e.g. `"Author-id"`).
 
-For fields which are required but not given, it will return a default value (e.g. `"UserType-id"`).
+Works for any nested selections (data) and any nested inputs (variables).
 
-Works for any nested selections.
-
-When used together with `codegenTypedDocuments` the test data is type checked (type inference).
+When used together with `codegenTypedDocuments` the data and variables are type checked (type inference).
 
 ### Install
 
 `codegen.yml`
 
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/codegen.yml) -->
+<!-- The below code snippet is automatically added from ./examples/docs/codegen.yml -->
 ```yml
-schema: http://localhost:8000/graphql/
-documents: ./src/**/*.gql
+schema: ./schema.graphql
+documents: ./documents/*.graphql
 generates:
-  ./src/apolloMock.js:
+  ./apolloMock.js:
     plugins:
       - apollo-typed-documents/lib/codegenApolloMock
 ```
+<!-- AUTO-GENERATED-CONTENT:END -->
 
 ### Example
 
-`schema.graphql`:
+`./schema.graphql`:
 
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/schema.graphql) -->
+<!-- The below code snippet is automatically added from ./examples/docs/schema.graphql -->
 ```graphql
-type TaskTypeConnection {
-  edges: [TaskTypeEdge]!
-}
-
-type TaskTypeEdge {
-  node: TaskType!
-  cursor: String!
-}
-
-type TaskType {
-  id: UUID!
-  slug: String!
+type Author {
+  id: ID!
+  name: String!
   description: String
+  books: [Book]!
+}
+
+type Book {
+  id: ID!
+  title: String!
+}
+
+input AuthorInput {
+  name: String!
+  description: String
+  books: [BookInput]!
+}
+
+input BookInput {
+  title: String!
 }
 
 type Query {
-  tasks(after: String, first: Int): TaskTypeConnection!
+  authors: [Author]!
+}
+
+type Mutation {
+  createAuthor(input: AuthorInput!): Author!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
 }
 ```
+<!-- AUTO-GENERATED-CONTENT:END -->
 
-`tasksQuery.graphql`:
+`./documents/authors.graphql`:
 
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/documents/authors.graphql) -->
+<!-- The below code snippet is automatically added from ./examples/docs/documents/authors.graphql -->
 ```graphql
-query tasks($after: String, $first: Int) {
-  tasks(after: $after, first: $first) {
-    edges {
-      node {
-        id
-        slug
-        description
-      }
+query authors {
+  authors {
+    id
+    name
+    description
+    books {
+      id
+      title
     }
   }
 }
 ```
+<!-- AUTO-GENERATED-CONTENT:END -->
 
-`tasks.test.js`:
+`./documents/createAuthor.graphql`:
 
-```js
-import apolloMock from "./apolloMock"
-import tasksQuery from "./tasksQuery.gql";
-
-expect(apolloMock(tasksQuery, {}, {})).equals({
-  request: {
-      query: tasksQuery,
-      variables
-  },
-  result: {
-    data: {
-      tasks: {
-        edges: []
-      }
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/documents/createAuthor.graphql) -->
+<!-- The below code snippet is automatically added from ./examples/docs/documents/createAuthor.graphql -->
+```graphql
+mutation createAuthor($input: AuthorInput!) {
+  createAuthor(input: $input) {
+    id
+    name
+    description
+    books {
+      id
+      title
     }
   }
-})
-
-expect(apolloMock(tasksQuery, {}, { tasks: { edges: [{}]})).equals({
-  request: {
-    query: tasksQuery,
-    variables
-  },
-  result: {
-    data: {
-      tasks: {
-        edges: [
-          {
-            node: {
-              id: "TaskType-id",
-              slug: "TaskType-slug",
-              description: null
-            },
-            cursor: "TaskTypeEdge-cursor"
-          }
-        ]
-      }
-    }
-  }
-})
+}
 ```
+<!-- AUTO-GENERATED-CONTENT:END -->
+
+`./apolloMock.test.js`:
+
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/apolloMock.test.js) -->
+<!-- The below code snippet is automatically added from ./examples/docs/apolloMock.test.js -->
+```js
+import apolloMock from "./apolloMock";
+import authors from "./documents/authors.graphql";
+import createAuthor from "./documents/createAuthor.graphql";
+
+describe("apolloMock", () => {
+  it("procudes the minimal output that is valid according to graphql schema", () => {
+    expect(apolloMock(authors, {}, {})).toEqual({
+      request: {
+        query: authors,
+        variables: {},
+      },
+      result: {
+        data: {
+          authors: [],
+        },
+      },
+    });
+
+    expect(apolloMock(authors, {}, { authors: [{}] })).toEqual({
+      request: {
+        query: authors,
+        variables: {},
+      },
+      result: {
+        data: {
+          authors: [
+            {
+              __typename: "Author",
+              id: "Author-id",
+              name: "Author-name",
+              description: null,
+              books: [],
+            },
+          ],
+        },
+      },
+    });
+
+    expect(
+      apolloMock(
+        createAuthor,
+        { input: { name: "Foo", books: [{ title: "Bar" }] } },
+        { createAuthor: { name: "Foo", books: [{ title: "Bar" }] } }
+      )
+    ).toEqual({
+      request: {
+        query: createAuthor,
+        variables: {
+          input: {
+            name: "Foo",
+            description: undefined,
+            books: [{ title: "Bar" }],
+          },
+        },
+      },
+      result: {
+        data: {
+          createAuthor: {
+            __typename: "Author",
+            id: "Author-id",
+            name: "Foo",
+            description: null,
+            books: [
+              {
+                __typename: "Book",
+                id: "Book-id",
+                title: "Bar",
+              },
+            ],
+          },
+        },
+      },
+    });
+  });
+});
+```
+<!-- AUTO-GENERATED-CONTENT:END -->
