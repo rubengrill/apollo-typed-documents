@@ -5,16 +5,7 @@
     "checkJs": true,
     "strict": true,
     "jsx": "react",
-    "esModuleInterop": true,
-    "baseUrl": ".",
-    "paths": {
-      "@codegen-types": ["../codegenTypes.ts"],
-      "@apollo/react-hooks": ["../../../lib/reactHooks.d.ts"]
-    }
+    "esModuleInterop": true
   },
-  "include": [
-    ".",
-    "../codegenTypedDocuments.d.ts",
-    "../node_modules/@testing-library/jest-dom/extend-expect.d.ts"
-  ]
+  "include": [".", "../../../lib/reactHooks.d.ts"]
 }

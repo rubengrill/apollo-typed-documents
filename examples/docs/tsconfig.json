@@ -5,11 +5,7 @@
     "checkJs": true,
     "strict": true,
     "jsx": "react",
-    "esModuleInterop": true,
-    "baseUrl": ".",
-    "paths": {
-      "@codegen-types": ["codegenTypes.ts"],
-      "@apollo/react-hooks": ["../../lib/reactHooks.d.ts"]
-    }
-  }
+    "esModuleInterop": true
+  },
+  "include": ["src", "../../lib/reactHooks.d.ts"]
 }

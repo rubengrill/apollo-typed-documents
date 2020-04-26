@@ -1,12 +1,16 @@
-schema: ./schema.graphql
-documents: ./documents/*.graphql
+schema: schema.graphql
+documents: src/**/*.graphql
 generates:
-  ./codegenTypedDocuments.d.ts:
+  ./src/codegenTypedDocuments.d.ts:
     plugins:
       - apollo-typed-documents/lib/codegenTypedDocuments
     config:
       typesModule: "@codegen-types"
-  ./codegenTypes.ts:
+  ./src/codegenTypes.d.ts:
     plugins:
+      - add: 'declare module "@codegen-types" {'
+      - add:
+          placement: append
+          content: "}"
       - typescript
       - typescript-operations

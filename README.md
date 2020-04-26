@@ -25,16 +25,20 @@ The difference is that is uses generic types, so that you have type safety with 
 <!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/codegenTypedDocuments.yml) -->
 <!-- The below code snippet is automatically added from ./examples/docs/codegenTypedDocuments.yml -->
 ```yml
-schema: ./schema.graphql
-documents: ./documents/*.graphql
+schema: schema.graphql
+documents: src/**/*.graphql
 generates:
-  ./codegenTypedDocuments.d.ts:
+  ./src/codegenTypedDocuments.d.ts:
     plugins:
       - apollo-typed-documents/lib/codegenTypedDocuments
     config:
       typesModule: "@codegen-types"
-  ./codegenTypes.ts:
+  ./src/codegenTypes.d.ts:
     plugins:
+      - add: 'declare module "@codegen-types" {'
+      - add:
+          placement: append
+          content: "}"
       - typescript
       - typescript-operations
 ```
@@ -67,10 +71,10 @@ the configuration needs to have more options set: [reference](examples/docs/tsco
 
 ### Example
 
-`./documents/authors.graphql`:
+`src/authors.graphql`:
 
-<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/documents/authors.graphql) -->
-<!-- The below code snippet is automatically added from ./examples/docs/documents/authors.graphql -->
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/src/authors.graphql) -->
+<!-- The below code snippet is automatically added from ./examples/docs/src/authors.graphql -->
 ```graphql
 query authors {
   authors {
@@ -86,10 +90,10 @@ query authors {
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
-`./documents/createAuthor.graphql`:
+`src/createAuthor.graphql`:
 
-<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/documents/createAuthor.graphql) -->
-<!-- The below code snippet is automatically added from ./examples/docs/documents/createAuthor.graphql -->
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/src/createAuthor.graphql) -->
+<!-- The below code snippet is automatically added from ./examples/docs/src/createAuthor.graphql -->
 ```graphql
 mutation createAuthor($input: AuthorInput!) {
   createAuthor(input: $input) {
@@ -105,10 +109,10 @@ mutation createAuthor($input: AuthorInput!) {
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
-`./codegenTypedDocuments.d.ts` (generated):
+`src/codegenTypedDocuments.d.ts` (generated):
 
-<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/codegenTypedDocuments.d.ts) -->
-<!-- The below code snippet is automatically added from ./examples/docs/codegenTypedDocuments.d.ts -->
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/src/codegenTypedDocuments.d.ts) -->
+<!-- The below code snippet is automatically added from ./examples/docs/src/codegenTypedDocuments.d.ts -->
 ```ts
 declare module "*/authors.graphql" {
   import { TypedDocumentNode } from "apollo-typed-documents";
@@ -126,16 +130,16 @@ declare module "*/createAuthor.graphql" {
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
-`./AuthorList.js`:
+`src/AuthorList.js`:
 
-<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/AuthorList.js) -->
-<!-- The below code snippet is automatically added from ./examples/docs/AuthorList.js -->
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/src/AuthorList.js) -->
+<!-- The below code snippet is automatically added from ./examples/docs/src/AuthorList.js -->
 ```js
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import React from "react";
 
-import authorsQuery from "./documents/authors.graphql";
-import createAuthorMutation from "./documents/createAuthor.graphql";
+import authorsQuery from "./authors.graphql";
+import createAuthorMutation from "./createAuthor.graphql";
 
 const AuthorList = () => {
   // Type of `data` is inferred (AuthorsQuery)
@@ -275,10 +279,10 @@ When used together with `codegenTypedDocuments` the data and variables are type 
 <!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/codegenApolloMock.yml) -->
 <!-- The below code snippet is automatically added from ./examples/docs/codegenApolloMock.yml -->
 ```yml
-schema: ./schema.graphql
-documents: ./documents/*.graphql
+schema: schema.graphql
+documents: src/**/*.graphql
 generates:
-  ./apolloMock.js:
+  ./src/apolloMock.js:
     plugins:
       - apollo-typed-documents/lib/codegenApolloMock
 ```
@@ -286,7 +290,7 @@ generates:
 
 ### Example
 
-`./schema.graphql`:
+`schema.graphql`:
 
 <!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/schema.graphql) -->
 <!-- The below code snippet is automatically added from ./examples/docs/schema.graphql -->
@@ -328,10 +332,10 @@ schema {
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
-`./documents/authors.graphql`:
+`src/authors.graphql`:
 
-<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/documents/authors.graphql) -->
-<!-- The below code snippet is automatically added from ./examples/docs/documents/authors.graphql -->
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/src/authors.graphql) -->
+<!-- The below code snippet is automatically added from ./examples/docs/src/authors.graphql -->
 ```graphql
 query authors {
   authors {
@@ -347,10 +351,10 @@ query authors {
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
-`./documents/createAuthor.graphql`:
+`src/createAuthor.graphql`:
 
-<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/documents/createAuthor.graphql) -->
-<!-- The below code snippet is automatically added from ./examples/docs/documents/createAuthor.graphql -->
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/src/createAuthor.graphql) -->
+<!-- The below code snippet is automatically added from ./examples/docs/src/createAuthor.graphql -->
 ```graphql
 mutation createAuthor($input: AuthorInput!) {
   createAuthor(input: $input) {
@@ -366,18 +370,18 @@ mutation createAuthor($input: AuthorInput!) {
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
-`./apolloMock.js` (generated):
+`src/apolloMock.js` (generated):
 
-See: [reference](examples/docs/apolloMock.js)
+See: [reference](examples/docs/src/apolloMock.js)
 
-`./apolloMock.test.js`:
+`src/apolloMock.test.js`:
 
-<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/apolloMock.test.js) -->
-<!-- The below code snippet is automatically added from ./examples/docs/apolloMock.test.js -->
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/src/apolloMock.test.js) -->
+<!-- The below code snippet is automatically added from ./examples/docs/src/apolloMock.test.js -->
 ```js
 import apolloMock from "./apolloMock";
-import authors from "./documents/authors.graphql";
-import createAuthor from "./documents/createAuthor.graphql";
+import authors from "./authors.graphql";
+import createAuthor from "./createAuthor.graphql";
 
 describe("apolloMock", () => {
   it("produces the minimal output that is valid according to graphql schema", () => {

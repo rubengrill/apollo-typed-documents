@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import React from "react";
 
-import authorsQuery from "./documents/authors.graphql";
-import createAuthorMutation from "./documents/createAuthor.graphql";
+import authorsQuery from "./authors.graphql";
+import createAuthorMutation from "./createAuthor.graphql";
 
 const AuthorList = () => {
   // Type of `data` is inferred (AuthorsQuery)

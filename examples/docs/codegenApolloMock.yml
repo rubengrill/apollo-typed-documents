@@ -1,6 +1,6 @@
-schema: ./schema.graphql
-documents: ./documents/*.graphql
+schema: schema.graphql
+documents: src/**/*.graphql
 generates:
-  ./apolloMock.js:
+  ./src/apolloMock.js:
     plugins:
       - apollo-typed-documents/lib/codegenApolloMock
