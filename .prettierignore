@@ -1,3 +1,4 @@
-examples/docs/apolloMock.js
-examples/docs/codegenTypedDocuments.d.ts
-examples/docs/codegenTypes.ts
+examples/**/apolloMock.js
+examples/**/codegenTypedDocuments.d.ts
+examples/**/codegenTypes.d.ts
+README.md

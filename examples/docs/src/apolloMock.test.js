@@ -1,6 +1,6 @@
 import apolloMock from "./apolloMock";
-import authors from "./documents/authors.graphql";
-import createAuthor from "./documents/createAuthor.graphql";
+import authors from "./authors.graphql";
+import createAuthor from "./createAuthor.graphql";
 
 describe("apolloMock", () => {
   it("produces the minimal output that is valid according to graphql schema", () => {

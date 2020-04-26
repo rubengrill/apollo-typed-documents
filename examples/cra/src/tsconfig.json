@@ -7,5 +7,5 @@
     "jsx": "react",
     "esModuleInterop": true
   },
-  "include": ["src", "node_modules/apollo-typed-documents/lib/reactHooks.d.ts"]
+  "include": [".", "../node_modules/apollo-typed-documents/lib/reactHooks.d.ts"]
 }

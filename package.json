@@ -34,6 +34,7 @@
   "devDependencies": {
     "@apollo/react-common": "^3.1.4",
     "@apollo/react-hooks": "^3.1.4",
+    "@graphql-codegen/add": "^1.13.3",
     "@graphql-codegen/cli": "^1.13.3",
     "@graphql-codegen/core": "^1.13.2",
     "@graphql-codegen/plugin-helpers": "^1.13.2",
@@ -53,7 +54,7 @@
     "eslint-plugin-react": "^7.19.0",
     "graphql": "^14.6.0",
     "import-sort-style-module": "^6.0.0",
-    "jest": "^25.3.0",
+    "jest": "^24.7.1",
     "jest-transform-graphql": "^2.1.0",
     "markdown-magic": "^1.0.0",
     "pascal-case": "^3.1.1",
@@ -62,11 +63,11 @@
     "react": "^16.13.1",
     "rimraf": "^3.0.2",
     "tmp": "^0.1.0",
-    "ts-jest": "^25.3.1",
+    "ts-jest": "^24.3.0",
     "typescript": "^3.8.3"
   },
   "importSort": {
-    ".js,.ts": {
+    ".js, .jsx, .ts, .tsx": {
       "style": "module",
       "parser": "typescript"
     }
