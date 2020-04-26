@@ -20,6 +20,11 @@ The difference is that is uses generic types, so that you have type safety with 
 
 ### Install
 
+```sh
+$ yarn add @graphql-codegen/add @graphql-codegen/typescript @graphql-codegen/typescript-operations
+$ yarn add apollo-typed-documents
+```
+
 `codegen.yml`:
 
 <!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/codegenTypedDocuments.yml) -->
@@ -169,24 +174,26 @@ export default AuthorList;
 
 ### Notes for `create-react-app` users
 
-`create-react-app` uses `graphql.macro` for loading of `.graphql` files (https://create-react-app.dev/docs/loading-graphql-files/).
+`create-react-app` supports `graphql.macro` for loading `.graphql` files (https://create-react-app.dev/docs/loading-graphql-files/).
 
-Because the `codegenTypedDocuments` plugin generates ambient module declarations for those `.graphql` files, they must be imported as regular modules (`commonjs`), otherwise TypeScript can't know its type.
+The `codegenTypedDocuments` plugin generates ambient module declarations for `.graphql` files, which means that `.graphql` files must be imported as regular modules (`import` syntax) so that TypeScript knows about the types.
 
-You can use the babel plugin `babel-plugin-import-graphql`, but then you need to either `eject` or use `react-app-rewired`/`customize-cra`.
+You can use the babel plugin `babel-plugin-import-graphql` (https://github.com/detrohutt/babel-plugin-import-graphql), but then you need to use `react-app-rewired` (https://github.com/timarney/react-app-rewired/) and `customize-cra` (https://github.com/arackaf/customize-cra) so that you can define custom babel plugins.
 
-Follow install instructions for `react-app-rewired`/`customize-cra`:
-
-- https://github.com/timarney/react-app-rewired/
-- https://github.com/arackaf/customize-cra
-
-Install `babel-plugin-import-graphql`
-
-```
+```sh
+$ yarn add react-app-rewired customize-cra
 $ yarn add babel-plugin-import-graphql
 ```
 
-Add to `.babelrc`:
+`config-overrides.js`
+
+```js
+const { override, useBabelRc } = require("customize-cra");
+
+module.exports = override(useBabelRc());
+```
+
+`.babelrc`
 
 ```json
 {
@@ -195,58 +202,57 @@ Add to `.babelrc`:
 }
 ```
 
-Also, if you have a `create-react-app` project without TypeScript, the `tsconfig.json` must not be placed in your app root folder, because `create-react-app` uses this file to detect a TypeScript project: [reference](https://github.com/facebook/create-react-app/blob/v3.4.1/packages/react-scripts/scripts/utils/verifyTypeScriptSetup.js#L49).
+`package.json`
 
-All `.ts`/`.d.ts` files must be outside of your `src` folder: [reference](https://github.com/facebook/create-react-app/blob/v3.4.1/packages/react-scripts/scripts/utils/verifyTypeScriptSetup.js#L50)
-
-A solution is to put the `tsconfig.json` in the parent folder:
-
-```
-tsconfig.json
-backend/
-frontend/
-  codegen.yml
-  codegenTypedDocuments.d.ts
-  codegenTypes.ts
-  src/
-    apolloMock.js
-    ...
-```
-
-An example `tsconfig.json`:
-
-```json
-{
-  "comment": "File is in root folder so that create-react-app doesn't detect a typescript app",
-  "compilerOptions": {
-    "rootDir": "frontend",
-    "typeRoots": ["frontend/node_modules/@types"],
-    "baseUrl": "frontend",
-    "paths": {
-      "@codegen-types": ["codegenTypes.ts"],
-      "@apollo/react-hooks": [
-        "node_modules/apollo-typed-documents/lib/reactHooks.d.ts"
-      ]
-    },
-    "allowJs": true,
-    "checkJs": true,
-    "noEmit": true,
-    "jsx": "react",
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "alwaysStrict": true,
-    "strictNullChecks": true,
-    "target": "ES2018"
-  },
-  "include": [
-    "frontend/src/**/*",
-    "frontend/*.ts",
-    "frontend/*.d.ts",
-    "frontend/node_modules/react-scripts/lib/react-app.d.ts",
-    "frontend/node_modules/babel-plugin-react-intl-auto/types.d.ts"
-  ]
+```js
+"scripts": {
+  "start": "react-app-rewired start",
+  "build": "react-app-rewired build",
+  "test": "react-app-rewired test",
+  ...
 }
 ```
+
+If you have a TypeScript app, you need to override the `@apollo/react-hooks` types in `tsconfig.json`:
+
+`tsconfig.json`
+
+```js
+{
+  "compilerOptions": {
+    ...
+  },
+  "include": ["src", "node_modules/apollo-typed-documents/lib/reactHooks.d.ts"]
+}
+```
+
+If you don't have a TypeScript app (you just want TypeScript support within your IDE) you can't create a `tsconfig.json` in your app folder, because `create-react-app` uses that file to detect if this is a TypeScript project.
+
+Instead, you have to create the `tsconfig.json` in your `src` folder:
+
+`src/tsconfig.json`
+
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/cra/src/tsconfig.json) -->
+<!-- The below code snippet is automatically added from ./examples/cra/src/tsconfig.json -->
+```json
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "jsx": "react",
+    "esModuleInterop": true
+  },
+  "include": [".", "../node_modules/apollo-typed-documents/lib/reactHooks.d.ts"]
+}
+```
+<!-- AUTO-GENERATED-CONTENT:END -->
+
+Please see the following example projects for more details:
+
+- [`create-react-app` with TypeScript](examples/cra-ts)
+- [`create-react-app` without TypeScript](examples/cra)
 
 ## codegenApolloMock
 
@@ -269,6 +275,10 @@ apolloMock(documentNode, variables, data, { addTypename: false });
 When used together with `codegenTypedDocuments` the data and variables are type checked (type inference).
 
 ### Install
+
+```sh
+$ yarn add apollo-typed-documents
+```
 
 `codegen.yml`
 
