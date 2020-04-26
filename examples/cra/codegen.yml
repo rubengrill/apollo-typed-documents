@@ -1,0 +1,16 @@
+schema: ../docs/schema.graphql
+documents: src/**/*.graphql
+generates:
+  ./codegenTypedDocuments.d.ts:
+    plugins:
+      - apollo-typed-documents/lib/codegenTypedDocuments
+    config:
+      typesModule: "@codegen-types"
+  ./codegenTypes.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+  ./src/apolloMock.js:
+    plugins:
+      - add: "/* eslint-disable */"
+      - apollo-typed-documents/lib/codegenApolloMock

@@ -34,6 +34,7 @@
   "devDependencies": {
     "@apollo/react-common": "^3.1.4",
     "@apollo/react-hooks": "^3.1.4",
+    "@graphql-codegen/add": "^1.13.3",
     "@graphql-codegen/cli": "^1.13.3",
     "@graphql-codegen/core": "^1.13.2",
     "@graphql-codegen/plugin-helpers": "^1.13.2",

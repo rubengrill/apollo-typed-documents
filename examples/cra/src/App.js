@@ -1,26 +1,38 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useMutation, useQuery } from "@apollo/react-hooks";
+import React from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+import authorsQuery from "./authors.graphql";
+import createAuthorMutation from "./createAuthor.graphql";
+
+const App = () => {
+  const { data } = useQuery(authorsQuery);
+  const [createAuthor, { data: createAuthorData }] = useMutation(
+    createAuthorMutation,
+    {
+      refetchQueries: [{ query: authorsQuery }],
+    }
   );
-}
+
+  return (
+    <>
+      <ul>
+        {data?.authors.map((author) => (
+          <li key={author.id}>{author.name}</li>
+        ))}
+      </ul>
+      {!createAuthorData && (
+        <button
+          onClick={() => {
+            createAuthor({
+              variables: { input: { name: "Foo", books: [{ title: "Bar" }] } },
+            });
+          }}
+        >
+          Add
+        </button>
+      )}
+    </>
+  );
+};
 
 export default App;
