@@ -67,7 +67,7 @@
     "typescript": "^3.8.3"
   },
   "importSort": {
-    ".js,.ts": {
+    ".js, .jsx, .ts, .tsx": {
       "style": "module",
       "parser": "typescript"
     }
