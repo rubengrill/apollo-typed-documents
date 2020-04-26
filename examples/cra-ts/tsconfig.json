@@ -15,5 +15,5 @@
     "noEmit": true,
     "jsx": "react"
   },
-  "include": ["src", "../../lib/reactHooks.d.ts"]
+  "include": ["src", "node_modules/apollo-typed-documents/lib/reactHooks.d.ts"]
 }

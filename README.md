@@ -46,28 +46,24 @@ generates:
 
 `tsconfig.json`:
 
+Add `node_modules/apollo-typed-documents/lib/reactHooks.d.ts` in `include` to override the typings for `@apollo/react-hooks`, so that types can be inferred from typed documents.
+
+<!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/tsconfig.json) -->
+<!-- The below code snippet is automatically added from ./examples/docs/tsconfig.json -->
 ```json
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@codegen-types": ["codegenTypes.ts"],
-      "@apollo/react-hooks": [
-        "./node_modules/apollo-typed-documents/lib/reactHooks.d.ts"
-      ]
-    }
-  }
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "jsx": "react",
+    "esModuleInterop": true
+  },
+  "include": ["src", "node_modules/apollo-typed-documents/lib/reactHooks.d.ts"]
 }
 ```
-
-`@codegen-types` points to the output of `typescript-operations` graphql-codegen plugin.
-
-This alias is required, because in ambient module declarations (`.d.ts`) only non relative imports are allowed.
-
-`@apollo/react-hooks` overrides the types to have generic hooks in your code: [reference](src/reactHooks.ts)
-
-If you don't have a TypeScript project but instead just want to get type safety and code completion,
-the configuration needs to have more options set: [reference](examples/docs/tsconfig.json)
+<!-- AUTO-GENERATED-CONTENT:END -->
 
 ### Example
 
