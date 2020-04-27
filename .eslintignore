@@ -1,3 +1,4 @@
 examples/**/apolloMock.js
 examples/**/codegenTypedDocuments.d.ts
 examples/**/codegenTypes.d.ts
+node_modules

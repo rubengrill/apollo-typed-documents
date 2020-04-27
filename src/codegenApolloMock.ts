@@ -14,9 +14,9 @@ export const plugin: PluginFunction = (schema, documents) => {
 
   const output: string[] = [];
   const inputObjectTypeOutput: string[] = [];
-  const mockVisitor = new MockVisitor(output, inputObjectTypeOutput);
+  const mockVisitor = new MockVisitor(schema, output, inputObjectTypeOutput);
 
-  output.push('import { createApolloMock } from "apollo-typed-documents";');
+  output.push("import { createApolloMock } from 'apollo-typed-documents';");
   output.push("const operations = {};");
   output.push("export default createApolloMock(operations);");
 
