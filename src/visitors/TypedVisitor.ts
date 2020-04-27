@@ -2,6 +2,7 @@ import {
   FieldNode,
   GraphQLEnumType,
   GraphQLInputObjectType,
+  GraphQLInterfaceType,
   GraphQLObjectType,
   GraphQLScalarType,
   GraphQLSchema,
@@ -9,59 +10,48 @@ import {
   VariableDefinitionNode,
   isEnumType,
   isInputObjectType,
+  isInterfaceType,
   isListType,
   isNonNullType,
   isObjectType,
   isScalarType,
 } from "graphql";
 
-interface TypedBaseField<ObjectType, T extends TypedBaseField<ObjectType, T>> {
-  kind: string;
+export interface TypedField {
   name: string;
-  parentObjectType?: ObjectType;
   isNonNull: boolean;
   isList: boolean;
 
   scalarType?: GraphQLScalarType;
   enumType?: GraphQLEnumType;
-  objectType?: ObjectType;
+  inputObjectType?: GraphQLInputObjectType;
+  objectType?: GraphQLObjectType;
+  interfaceType?: GraphQLInterfaceType;
 
-  fields: T[];
+  fields: TypedField[];
 }
-
-export interface TypedInputField
-  extends TypedBaseField<GraphQLInputObjectType, TypedInputField> {
-  kind: "TypedInputField";
-}
-
-export interface TypedOutputField
-  extends TypedBaseField<GraphQLObjectType, TypedOutputField> {
-  kind: "TypedOutputField";
-}
-
-export type TypedField = TypedInputField | TypedOutputField;
 
 export interface TypedVariableDefinitionNode extends VariableDefinitionNode {
-  typed: TypedInputField;
+  typed: TypedField;
 }
 
 export interface TypedFieldNode extends FieldNode {
-  typed: TypedOutputField;
+  typed: TypedField;
 }
+
+type OutputParentObjectType = GraphQLObjectType | GraphQLInterfaceType;
 
 export default class TypedVisitor {
   schema: GraphQLSchema;
-  types: GraphQLObjectType[] = [];
-  type?: GraphQLObjectType;
-  inputObjectTypeFields: {
-    [inputObjectTypeName: string]: TypedInputField[];
-  } = {};
+  types: OutputParentObjectType[] = [];
+  type?: OutputParentObjectType;
+  inputObjectTypeFields: { [inputObjectTypeName: string]: TypedField[] } = {};
 
   constructor(schema: GraphQLSchema) {
     this.schema = schema;
   }
 
-  putType(type: GraphQLObjectType) {
+  putType(type: OutputParentObjectType) {
     this.types.push(type);
     this.type = type;
   }
@@ -78,19 +68,17 @@ export default class TypedVisitor {
     return this.type;
   }
 
-  getInputObjectTypeFields(type: GraphQLInputObjectType): TypedInputField[] {
+  getInputObjectTypeFields(type: GraphQLInputObjectType): TypedField[] {
     if (!this.inputObjectTypeFields[type.name]) {
       const fields = Object.values(type.getFields());
 
       this.inputObjectTypeFields[type.name] = [];
 
       fields.forEach((field) => {
-        const typedField = {} as TypedInputField;
+        const typedField = {} as TypedField;
         let fieldType = field.type;
 
-        typedField.kind = "TypedInputField";
         typedField.name = field.name;
-        typedField.parentObjectType = type;
         typedField.fields = [];
         typedField.isNonNull = false;
         typedField.isList = false;
@@ -110,7 +98,7 @@ export default class TypedVisitor {
         }
 
         if (isInputObjectType(fieldType)) {
-          typedField.objectType = fieldType;
+          typedField.inputObjectType = fieldType;
           typedField.fields = this.getInputObjectTypeFields(fieldType);
         } else if (isScalarType(fieldType)) {
           typedField.scalarType = fieldType;
@@ -159,8 +147,7 @@ export default class TypedVisitor {
         const node = _node as TypedVariableDefinitionNode;
         let nodeType = node.type;
 
-        node.typed = {} as TypedInputField;
-        node.typed.kind = "TypedInputField";
+        node.typed = {} as TypedField;
         node.typed.name = node.variable.name.value;
         node.typed.fields = [];
         node.typed.isNonNull = false;
@@ -187,7 +174,7 @@ export default class TypedVisitor {
         const type = this.schema.getType(nodeType.name.value);
 
         if (isInputObjectType(type)) {
-          node.typed.objectType = type;
+          node.typed.inputObjectType = type;
           node.typed.fields = this.getInputObjectTypeFields(type);
         } else if (isScalarType(type)) {
           node.typed.scalarType = type;
@@ -208,10 +195,8 @@ export default class TypedVisitor {
         const field = fields[node.name.value];
         let type = field.type;
 
-        node.typed = {} as TypedOutputField;
-        node.typed.kind = "TypedOutputField";
+        node.typed = {} as TypedField;
         node.typed.name = node.name.value;
-        node.typed.parentObjectType = this.type;
         node.typed.fields = [];
         node.typed.isNonNull = false;
         node.typed.isList = false;
@@ -233,6 +218,9 @@ export default class TypedVisitor {
         if (isObjectType(type)) {
           node.typed.objectType = type;
           this.putType(type);
+        } else if (isInterfaceType(type)) {
+          node.typed.interfaceType = type;
+          this.putType(type);
         } else if (isScalarType(type)) {
           node.typed.scalarType = type;
         } else if (isEnumType(type)) {
@@ -242,7 +230,7 @@ export default class TypedVisitor {
       leave: (_node: FieldNode) => {
         const node = _node as TypedFieldNode;
 
-        if (node.typed.objectType) {
+        if (node.typed.objectType || node.typed.interfaceType) {
           this.popType();
 
           const selections = node.selectionSet?.selections || [];

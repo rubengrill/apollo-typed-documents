@@ -25,7 +25,8 @@
     "postversion": "git push && git push --tags",
     "test": "jest",
     "lint": "eslint --ext .js,.ts src/ examples/docs/",
-    "docs": "yarn run build && (cd examples/docs && graphql-codegen --config codegenApolloMock.yml && graphql-codegen --config codegenTypedDocuments.yml) && md-magic --path README.md"
+    "generate": "yarn run build && (cd examples/cra && yarn run generate) && (cd examples/cra-ts && yarn run generate) && (cd examples/docs && yarn run generate)",
+    "docs": "yarn run generate && md-magic --path README.md"
   },
   "peerDependencies": {
     "graphql": "^14.6.0",
