@@ -6,6 +6,8 @@ import {
   GraphQLObjectType,
   GraphQLScalarType,
   GraphQLSchema,
+  GraphQLUnionType,
+  InlineFragmentNode,
   OperationDefinitionNode,
   VariableDefinitionNode,
   isEnumType,
@@ -15,10 +17,14 @@ import {
   isNonNullType,
   isObjectType,
   isScalarType,
+  isUnionType,
 } from "graphql";
 
 export interface TypedField {
   name: string;
+  inputFields: TypedField[];
+  outputFields: TypedField[];
+  fragments: { typenames: string[]; field: TypedField }[];
   isNonNull: boolean;
   isList: boolean;
 
@@ -27,45 +33,59 @@ export interface TypedField {
   inputObjectType?: GraphQLInputObjectType;
   objectType?: GraphQLObjectType;
   interfaceType?: GraphQLInterfaceType;
-
-  fields: TypedField[];
+  unionType?: GraphQLUnionType;
 }
 
-export interface TypedVariableDefinitionNode extends VariableDefinitionNode {
+export interface TypedOperationDefinitionNode extends OperationDefinitionNode {
   typed: TypedField;
 }
 
-export interface TypedFieldNode extends FieldNode {
-  typed: TypedField;
-}
-
-type OutputParentObjectType = GraphQLObjectType | GraphQLInterfaceType;
+const createTypedField = (
+  field: Partial<TypedField> & { name: string }
+): TypedField => ({
+  inputFields: [],
+  outputFields: [],
+  fragments: [],
+  isNonNull: false,
+  isList: false,
+  ...field,
+});
 
 export default class TypedVisitor {
   schema: GraphQLSchema;
-  types: OutputParentObjectType[] = [];
-  type?: OutputParentObjectType;
+  parentFields: TypedField[] = [];
+  parentField?: TypedField;
   inputObjectTypeFields: { [inputObjectTypeName: string]: TypedField[] } = {};
+  leaveCallbacks = new Map<unknown, () => void>();
 
   constructor(schema: GraphQLSchema) {
     this.schema = schema;
   }
 
-  putType(type: OutputParentObjectType) {
-    this.types.push(type);
-    this.type = type;
+  putParentField(parentField: TypedField) {
+    this.parentFields.push(parentField);
+    this.parentField = parentField;
   }
 
-  popType() {
-    this.types.splice(this.types.length - 1, 1);
-    this.type = this.types[this.types.length - 1];
+  popParentField() {
+    this.parentFields.splice(this.parentFields.length - 1, 1);
+    this.parentField = this.parentFields[this.parentFields.length - 1];
   }
 
-  getType() {
-    if (!this.type) {
-      throw new Error("No type set");
+  getParentField() {
+    if (!this.parentField) {
+      throw new Error("No parent field set");
     }
-    return this.type;
+    return this.parentField;
+  }
+
+  invokeLeaveCallback(node: unknown) {
+    const leaveCallback = this.leaveCallbacks.get(node);
+
+    if (leaveCallback) {
+      leaveCallback();
+      this.leaveCallbacks.delete(node);
+    }
   }
 
   getInputObjectTypeFields(type: GraphQLInputObjectType): TypedField[] {
@@ -75,13 +95,9 @@ export default class TypedVisitor {
       this.inputObjectTypeFields[type.name] = [];
 
       fields.forEach((field) => {
-        const typedField = {} as TypedField;
-        let fieldType = field.type;
+        const typedField = createTypedField({ name: field.name });
 
-        typedField.name = field.name;
-        typedField.fields = [];
-        typedField.isNonNull = false;
-        typedField.isList = false;
+        let fieldType = field.type;
 
         if (isNonNullType(fieldType)) {
           typedField.isNonNull = true;
@@ -99,7 +115,7 @@ export default class TypedVisitor {
 
         if (isInputObjectType(fieldType)) {
           typedField.inputObjectType = fieldType;
-          typedField.fields = this.getInputObjectTypeFields(fieldType);
+          typedField.inputFields = this.getInputObjectTypeFields(fieldType);
         } else if (isScalarType(fieldType)) {
           typedField.scalarType = fieldType;
         } else if (isEnumType(fieldType)) {
@@ -115,7 +131,9 @@ export default class TypedVisitor {
 
   get OperationDefinition() {
     return {
-      enter: (node: OperationDefinitionNode) => {
+      enter: (_node: OperationDefinitionNode) => {
+        const node = _node as TypedOperationDefinitionNode;
+
         let type: GraphQLObjectType | undefined | null;
 
         switch (node.operation) {
@@ -133,33 +151,35 @@ export default class TypedVisitor {
           throw new Error(`Couldn't find type for ${node.operation}`);
         }
 
-        this.putType(type);
+        const typedField = createTypedField({
+          name: type.name,
+          objectType: type,
+        });
+
+        node.typed = typedField;
+
+        this.putParentField(typedField);
       },
       leave: () => {
-        this.popType();
+        this.popParentField();
       },
     };
   }
 
   get VariableDefinition() {
     return {
-      enter: (_node: VariableDefinitionNode) => {
-        const node = _node as TypedVariableDefinitionNode;
+      enter: (node: VariableDefinitionNode) => {
+        const typedField = createTypedField({ name: node.variable.name.value });
+
         let nodeType = node.type;
 
-        node.typed = {} as TypedField;
-        node.typed.name = node.variable.name.value;
-        node.typed.fields = [];
-        node.typed.isNonNull = false;
-        node.typed.isList = false;
-
         if (nodeType.kind === "NonNullType") {
-          node.typed.isNonNull = true;
+          typedField.isNonNull = true;
           nodeType = nodeType.type;
         }
 
         if (nodeType.kind === "ListType") {
-          node.typed.isList = true;
+          typedField.isList = true;
           nodeType = nodeType.type;
         }
 
@@ -174,13 +194,17 @@ export default class TypedVisitor {
         const type = this.schema.getType(nodeType.name.value);
 
         if (isInputObjectType(type)) {
-          node.typed.inputObjectType = type;
-          node.typed.fields = this.getInputObjectTypeFields(type);
+          typedField.inputObjectType = type;
+          typedField.inputFields = this.getInputObjectTypeFields(type);
         } else if (isScalarType(type)) {
-          node.typed.scalarType = type;
+          typedField.scalarType = type;
         } else if (isEnumType(type)) {
-          node.typed.enumType = type;
+          typedField.enumType = type;
         }
+
+        const parentField = this.getParentField();
+
+        parentField.inputFields.push(typedField);
 
         return false; // No need to traverse deeper
       },
@@ -189,25 +213,27 @@ export default class TypedVisitor {
 
   get Field() {
     return {
-      enter: (_node: FieldNode) => {
-        const node = _node as TypedFieldNode;
-        const fields = this.getType().getFields();
+      enter: (node: FieldNode) => {
+        const parentField = this.getParentField();
+        const parentType = parentField.objectType || parentField.interfaceType;
+
+        if (!parentType) {
+          throw new Error("Parent type is not an object or interface type");
+        }
+
+        const fields = parentType.getFields();
         const field = fields[node.name.value];
+        const typedField = createTypedField({ name: node.name.value });
+
         let type = field.type;
 
-        node.typed = {} as TypedField;
-        node.typed.name = node.name.value;
-        node.typed.fields = [];
-        node.typed.isNonNull = false;
-        node.typed.isList = false;
-
         if (isNonNullType(type)) {
-          node.typed.isNonNull = true;
+          typedField.isNonNull = true;
           type = type.ofType;
         }
 
         if (isListType(type)) {
-          node.typed.isList = true;
+          typedField.isList = true;
           type = type.ofType;
         }
 
@@ -215,33 +241,70 @@ export default class TypedVisitor {
           type = type.ofType;
         }
 
+        let newParentField;
+
         if (isObjectType(type)) {
-          node.typed.objectType = type;
-          this.putType(type);
+          typedField.objectType = type;
+          newParentField = typedField;
         } else if (isInterfaceType(type)) {
-          node.typed.interfaceType = type;
-          this.putType(type);
+          typedField.interfaceType = type;
+          newParentField = typedField;
+        } else if (isUnionType(type)) {
+          typedField.unionType = type;
+          newParentField = typedField;
         } else if (isScalarType(type)) {
-          node.typed.scalarType = type;
+          typedField.scalarType = type;
         } else if (isEnumType(type)) {
-          node.typed.enumType = type;
+          typedField.enumType = type;
+        }
+
+        parentField.outputFields.push(typedField);
+
+        if (newParentField) {
+          this.putParentField(newParentField);
+          this.leaveCallbacks.set(node, () => this.popParentField());
         }
       },
-      leave: (_node: FieldNode) => {
-        const node = _node as TypedFieldNode;
+      leave: (node: FieldNode) => {
+        this.invokeLeaveCallback(node);
+      },
+    };
+  }
 
-        if (node.typed.objectType || node.typed.interfaceType) {
-          this.popType();
-
-          const selections = node.selectionSet?.selections || [];
-
-          node.typed.fields = selections
-            .filter((node) => node.kind === "Field")
-            .map((fieldNode) => {
-              const typedFieldNode = fieldNode as TypedFieldNode;
-              return typedFieldNode.typed;
-            });
+  get InlineFragment() {
+    return {
+      enter: (node: InlineFragmentNode) => {
+        if (!node.typeCondition) {
+          return;
         }
+
+        const type = this.schema.getType(node.typeCondition.name.value);
+
+        if (isObjectType(type) || isInterfaceType(type)) {
+          const typedField = createTypedField({ name: "InlineFragment" });
+
+          let typenames: string[] = [];
+
+          if (isObjectType(type)) {
+            typedField.objectType = type;
+            typenames = [type.name];
+          } else if (isInterfaceType(type)) {
+            typedField.interfaceType = type;
+            typenames = this.schema
+              .getPossibleTypes(type)
+              .map((field) => field.name);
+          }
+
+          const parentField = this.getParentField();
+
+          parentField.fragments.push({ typenames, field: typedField });
+
+          this.putParentField(typedField);
+          this.leaveCallbacks.set(node, () => this.popParentField());
+        }
+      },
+      leave: (node: InlineFragmentNode) => {
+        this.invokeLeaveCallback(node);
       },
     };
   }

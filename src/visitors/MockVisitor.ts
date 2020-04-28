@@ -1,10 +1,6 @@
-import { FieldNode, GraphQLSchema, OperationDefinitionNode } from "graphql";
+import { GraphQLSchema, OperationDefinitionNode } from "graphql";
 
-import {
-  TypedField,
-  TypedFieldNode,
-  TypedVariableDefinitionNode,
-} from "./TypedVisitor";
+import { TypedField, TypedOperationDefinitionNode } from "./TypedVisitor";
 
 export default class MockVisitor {
   schema: GraphQLSchema;
@@ -24,7 +20,9 @@ export default class MockVisitor {
 
   get OperationDefinition() {
     return {
-      leave: (node: OperationDefinitionNode) => {
+      leave: (_node: OperationDefinitionNode) => {
+        const node = _node as TypedOperationDefinitionNode;
+
         if (!node.name) {
           throw new Error("Operation doesn't have a name");
         }
@@ -35,26 +33,11 @@ export default class MockVisitor {
         output.push(`operations.${name} = {};\n`);
         output.push(`operations.${name}.variables = `);
         output.push(
-          this.getTypedFieldSetOutput(
-            (node.variableDefinitions || []).map((variableDefinitionNode) => {
-              const typedNode = variableDefinitionNode as TypedVariableDefinitionNode;
-              return typedNode.typed;
-            }),
-            { input: true }
-          )
+          this.getTypedFieldSetOutput(node.typed, { root: true, input: true })
         );
         output.push("\n");
         output.push(`operations.${name}.data = `);
-        output.push(
-          this.getTypedFieldSetOutput(
-            node.selectionSet.selections
-              .filter((selectionNode) => selectionNode.kind === "Field")
-              .map((selectionNode) => {
-                const fieldNode = (selectionNode as FieldNode) as TypedFieldNode;
-                return fieldNode.typed;
-              })
-          )
-        );
+        output.push(this.getTypedFieldSetOutput(node.typed, { root: true }));
 
         this.output.push(output.join(""));
       },
@@ -62,32 +45,31 @@ export default class MockVisitor {
   }
 
   getTypedFieldSetOutput(
-    fields: TypedField[],
-    {
-      indent = 0,
-      input = false,
-      parent = undefined,
-    }: { indent?: number; input?: boolean; parent?: TypedField } = {}
+    field: TypedField,
+    { indent = 0, input = false, root = false } = {}
   ) {
-    const output: string[] = [];
+    const fields = input ? field.inputFields : field.outputFields;
     const defaultValue = input ? "undefined" : "null";
+    const output: string[] = [];
 
     output.push("(values = {}, options = {}) => {\n");
 
     indent += 2;
 
-    if (!parent) {
+    if (root) {
       output.push(" ".repeat(indent));
       output.push("const __typename = '';\n");
-    } else if (parent.inputObjectType) {
+    } else if (field.inputObjectType) {
       output.push(" ".repeat(indent));
-      output.push(`const __typename = '${parent.inputObjectType.name}';\n`);
-    } else if (parent.objectType) {
+      output.push(`const __typename = '${field.inputObjectType.name}';\n`);
+    } else if (field.objectType) {
       output.push(" ".repeat(indent));
-      output.push(`const __typename = '${parent.objectType.name}';\n`);
-    } else if (parent.interfaceType) {
+      output.push(`const __typename = '${field.objectType.name}';\n`);
+    } else if (field.interfaceType || field.unionType) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const type = (field.interfaceType || field.unionType)!;
       const typenames = this.schema
-        .getPossibleTypes(parent.interfaceType)
+        .getPossibleTypes(type)
         .map((type) => type.name);
 
       output.push(" ".repeat(indent));
@@ -111,7 +93,10 @@ export default class MockVisitor {
     output.push(" }))(values);\n");
 
     output.push(" ".repeat(indent));
-    output.push("return {\n");
+    output.push("values.__typename = __typename;\n");
+
+    output.push(" ".repeat(indent));
+    output.push("let result = {\n");
 
     output.push(
       fields
@@ -119,15 +104,43 @@ export default class MockVisitor {
         .join(",\n")
     );
 
-    if (parent?.objectType || parent?.interfaceType) {
-      output.push(",\n");
-      output.push(" ".repeat(indent + 2));
-      output.push(`...(options.addTypename ? { __typename } : {})`);
+    if (!root) {
+      if (field?.objectType || field?.interfaceType || field?.unionType) {
+        if (fields.length) {
+          output.push(",\n");
+        }
+        output.push(" ".repeat(indent + 2));
+        output.push(`...(options.addTypename ? { __typename } : {})`);
+      }
     }
 
     output.push("\n");
     output.push(" ".repeat(indent));
     output.push("};\n");
+
+    if (!input) {
+      field.fragments.forEach(({ typenames, field }) => {
+        output.push(" ".repeat(indent));
+        output.push("if ([");
+        output.push(typenames.map((typename) => `'${typename}'`).join(", "));
+        output.push("].find(typename => typename === __typename)) {\n");
+
+        indent += 2;
+
+        output.push(" ".repeat(indent));
+        output.push("result = {...result, ...(");
+        output.push(this.getTypedFieldSetOutput(field, { indent, root }));
+        output.push(")(values, options)};\n");
+
+        indent -= 2;
+
+        output.push(" ".repeat(indent));
+        output.push("}\n");
+      });
+    }
+
+    output.push(" ".repeat(indent));
+    output.push("return result;\n");
 
     indent -= 2;
 
@@ -150,12 +163,7 @@ export default class MockVisitor {
       this.inputObjectTypeOutputState[inputObjectTypeName] = true;
 
       output.push(`const ${inputObjectTypeName} = `);
-      output.push(
-        this.getTypedFieldSetOutput(field.fields, {
-          input: true,
-          parent: field,
-        })
-      );
+      output.push(this.getTypedFieldSetOutput(field, { input: true }));
 
       this.inputObjectTypeOutput.push(output.join(""));
     }
@@ -169,16 +177,18 @@ export default class MockVisitor {
 
     output.push(" ".repeat(indent));
 
-    if (field.inputObjectType || field.objectType || field.interfaceType) {
+    if (
+      field.inputObjectType ||
+      field.objectType ||
+      field.interfaceType ||
+      field.unionType
+    ) {
       let nestedOutput: string;
 
       if (field.inputObjectType) {
         nestedOutput = this.getTypedInputFieldSetOutput(field);
       } else {
-        nestedOutput = this.getTypedFieldSetOutput(field.fields, {
-          indent,
-          parent: field,
-        });
+        nestedOutput = this.getTypedFieldSetOutput(field, { indent });
       }
 
       output.push(`${name}: `);
