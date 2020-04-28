@@ -44,6 +44,8 @@ const schema = buildSchema(`
     authorNonNull: Author!
   }
 
+  union SearchResult = Author | Post
+
   input AuthorInput {
     idField: ID!
     stringField: String
@@ -64,6 +66,7 @@ const schema = buildSchema(`
     authors: [Author]
     authorsNonNull: [Author]!
     objects: [HasIdField]
+    search: [SearchResult]
   }
 
   type Mutation {
@@ -156,23 +159,29 @@ describe("codegenApolloMock", () => {
           operations.authors.variables = (values = {}, options = {}) => {
             const __typename = '';
             values = (({  }) => ({  }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
 
             };
+            return result;
           }
           operations.authors.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ authors = null }) => ({ authors }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
               authors: !values.authors ? values.authors : values.authors.map(item => ((values = {}, options = {}) => {
                 const __typename = 'Author';
                 values = (({ idField = null }) => ({ idField }))(values);
-                return {
+                values.__typename = __typename;
+                let result = {
                   idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
+                return result;
               })(item, options))
             };
+            return result;
           }"
         `);
       });
@@ -348,18 +357,22 @@ describe("codegenApolloMock", () => {
           operations.authors.variables = (values = {}, options = {}) => {
             const __typename = '';
             values = (({  }) => ({  }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
 
             };
+            return result;
           }
           operations.authors.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ authors = null }) => ({ authors }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
               authors: !values.authors ? values.authors : values.authors.map(item => ((values = {}, options = {}) => {
                 const __typename = 'Author';
                 values = (({ idField = null, stringField = null, stringFieldNonNull = null, intField = null, intFieldNonNull = null, posts = null, postsNonNull = null }) => ({ idField, stringField, stringFieldNonNull, intField, intFieldNonNull, posts, postsNonNull }))(values);
-                return {
+                values.__typename = __typename;
+                let result = {
                   idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                   stringField: values.stringField,
                   stringFieldNonNull: (values.stringFieldNonNull === null || values.stringFieldNonNull === undefined) ? [__typename, 'stringFieldNonNull'].filter(v => v).join('-') : values.stringFieldNonNull,
@@ -368,55 +381,69 @@ describe("codegenApolloMock", () => {
                   posts: !values.posts ? values.posts : values.posts.map(item => ((values = {}, options = {}) => {
                     const __typename = 'Post';
                     values = (({ idField = null, author = null, authorNonNull = null }) => ({ idField, author, authorNonNull }))(values);
-                    return {
+                    values.__typename = __typename;
+                    let result = {
                       idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                       author: !values.author ? values.author : ((values = {}, options = {}) => {
                         const __typename = 'Author';
                         values = (({ idField = null }) => ({ idField }))(values);
-                        return {
+                        values.__typename = __typename;
+                        let result = {
                           idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                           ...(options.addTypename ? { __typename } : {})
                         };
+                        return result;
                       })(values.author, options),
                       authorNonNull: ((values = {}, options = {}) => {
                         const __typename = 'Author';
                         values = (({ idField = null }) => ({ idField }))(values);
-                        return {
+                        values.__typename = __typename;
+                        let result = {
                           idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                           ...(options.addTypename ? { __typename } : {})
                         };
+                        return result;
                       })(values.authorNonNull || undefined, options),
                       ...(options.addTypename ? { __typename } : {})
                     };
+                    return result;
                   })(item, options)),
                   postsNonNull: (values.postsNonNull || []).map(item => ((values = {}, options = {}) => {
                     const __typename = 'Post';
                     values = (({ idField = null, author = null, authorNonNull = null }) => ({ idField, author, authorNonNull }))(values);
-                    return {
+                    values.__typename = __typename;
+                    let result = {
                       idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                       author: !values.author ? values.author : ((values = {}, options = {}) => {
                         const __typename = 'Author';
                         values = (({ idField = null }) => ({ idField }))(values);
-                        return {
+                        values.__typename = __typename;
+                        let result = {
                           idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                           ...(options.addTypename ? { __typename } : {})
                         };
+                        return result;
                       })(values.author, options),
                       authorNonNull: ((values = {}, options = {}) => {
                         const __typename = 'Author';
                         values = (({ idField = null }) => ({ idField }))(values);
-                        return {
+                        values.__typename = __typename;
+                        let result = {
                           idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                           ...(options.addTypename ? { __typename } : {})
                         };
+                        return result;
                       })(values.authorNonNull || undefined, options),
                       ...(options.addTypename ? { __typename } : {})
                     };
+                    return result;
                   })(item, options)),
                   ...(options.addTypename ? { __typename } : {})
                 };
+                return result;
               })(item, options))
             };
+            return result;
           }"
         `);
       });
@@ -576,46 +603,58 @@ describe("codegenApolloMock", () => {
           operations.authors.variables = (values = {}, options = {}) => {
             const __typename = '';
             values = (({  }) => ({  }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
 
             };
+            return result;
           }
           operations.authors.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ authors = null }) => ({ authors }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
               authors: !values.authors ? values.authors : values.authors.map(item => ((values = {}, options = {}) => {
                 const __typename = 'Author';
                 values = (({ idField = null }) => ({ idField }))(values);
-                return {
+                values.__typename = __typename;
+                let result = {
                   idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
+                return result;
               })(item, options))
             };
+            return result;
           }
 
           operations.authorsNonNull = {};
           operations.authorsNonNull.variables = (values = {}, options = {}) => {
             const __typename = '';
             values = (({  }) => ({  }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
 
             };
+            return result;
           }
           operations.authorsNonNull.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ authorsNonNull = null }) => ({ authorsNonNull }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
               authorsNonNull: (values.authorsNonNull || []).map(item => ((values = {}, options = {}) => {
                 const __typename = 'Author';
                 values = (({ idField = null }) => ({ idField }))(values);
-                return {
+                values.__typename = __typename;
+                let result = {
                   idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
+                return result;
               })(item, options))
             };
+            return result;
           }"
         `);
 
@@ -658,24 +697,30 @@ describe("codegenApolloMock", () => {
           operations.objects.variables = (values = {}, options = {}) => {
             const __typename = '';
             values = (({  }) => ({  }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
 
             };
+            return result;
           }
           operations.objects.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ objects = null }) => ({ objects }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
               objects: !values.objects ? values.objects : values.objects.map(item => ((values = {}, options = {}) => {
                 const typenames = ['Author', 'Post'];
                 const __typename = typenames.find(typename => typename === values.__typename) || typenames[0];
                 values = (({ idField = null }) => ({ idField }))(values);
-                return {
+                values.__typename = __typename;
+                let result = {
                   idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
+                return result;
               })(item, options))
             };
+            return result;
           }"
         `);
       });
@@ -751,6 +796,210 @@ describe("codegenApolloMock", () => {
         `);
       });
     });
+
+    describe("with inline fragments", () => {
+      let document: DocumentNode;
+      let output: string;
+      let apolloMock: ApolloMockFn;
+
+      beforeEach(async (done) => {
+        document = parse(`
+          query search {
+            search {
+              ... on HasIdField {
+                idField
+              }
+              ... on Author {
+                posts {
+                  idField
+                }
+              }
+              ... on Post {
+                author {
+                  idField
+                }
+              }
+            }
+          }
+        `);
+
+        const documents = [{ document, location: "search.gql" }];
+        const config = getConfig({ documents });
+
+        output = await codegen(config);
+        apolloMock = getApolloMock(output);
+
+        done();
+      });
+
+      it("should have matching operation", () => {
+        expect(output).toMatchInlineSnapshot(`
+          "import { createApolloMock } from 'apollo-typed-documents';
+
+          const operations = {};
+
+          export default createApolloMock(operations);
+
+          operations.search = {};
+          operations.search.variables = (values = {}, options = {}) => {
+            const __typename = '';
+            values = (({  }) => ({  }))(values);
+            values.__typename = __typename;
+            let result = {
+
+            };
+            return result;
+          }
+          operations.search.data = (values = {}, options = {}) => {
+            const __typename = '';
+            values = (({ search = null }) => ({ search }))(values);
+            values.__typename = __typename;
+            let result = {
+              search: !values.search ? values.search : values.search.map(item => ((values = {}, options = {}) => {
+                const typenames = ['Author', 'Post'];
+                const __typename = typenames.find(typename => typename === values.__typename) || typenames[0];
+                values = (({  }) => ({  }))(values);
+                values.__typename = __typename;
+                let result = {
+                  ...(options.addTypename ? { __typename } : {})
+                };
+                if (['Author', 'Post'].find(typename => typename === __typename)) {
+                  result = {...result, ...((values = {}, options = {}) => {
+                    const typenames = ['Author', 'Post'];
+                    const __typename = typenames.find(typename => typename === values.__typename) || typenames[0];
+                    values = (({ idField = null }) => ({ idField }))(values);
+                    values.__typename = __typename;
+                    let result = {
+                      idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                      ...(options.addTypename ? { __typename } : {})
+                    };
+                    return result;
+                  })(values, options)};
+                }
+                if (['Author'].find(typename => typename === __typename)) {
+                  result = {...result, ...((values = {}, options = {}) => {
+                    const __typename = 'Author';
+                    values = (({ posts = null }) => ({ posts }))(values);
+                    values.__typename = __typename;
+                    let result = {
+                      posts: !values.posts ? values.posts : values.posts.map(item => ((values = {}, options = {}) => {
+                        const __typename = 'Post';
+                        values = (({ idField = null }) => ({ idField }))(values);
+                        values.__typename = __typename;
+                        let result = {
+                          idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                          ...(options.addTypename ? { __typename } : {})
+                        };
+                        return result;
+                      })(item, options)),
+                      ...(options.addTypename ? { __typename } : {})
+                    };
+                    return result;
+                  })(values, options)};
+                }
+                if (['Post'].find(typename => typename === __typename)) {
+                  result = {...result, ...((values = {}, options = {}) => {
+                    const __typename = 'Post';
+                    values = (({ author = null }) => ({ author }))(values);
+                    values.__typename = __typename;
+                    let result = {
+                      author: !values.author ? values.author : ((values = {}, options = {}) => {
+                        const __typename = 'Author';
+                        values = (({ idField = null }) => ({ idField }))(values);
+                        values.__typename = __typename;
+                        let result = {
+                          idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                          ...(options.addTypename ? { __typename } : {})
+                        };
+                        return result;
+                      })(values.author, options),
+                      ...(options.addTypename ? { __typename } : {})
+                    };
+                    return result;
+                  })(values, options)};
+                }
+                return result;
+              })(item, options))
+            };
+            return result;
+          }"
+        `);
+      });
+
+      it("should pick first type of the union type by default", () => {
+        const result = apolloMock(document, {}, { search: [{}] });
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "request": {
+              "query": "...",
+              "variables": {}
+            },
+            "result": {
+              "data": {
+                "search": [
+                  {
+                    "__typename": "Author",
+                    "idField": "Author-idField",
+                    "posts": null
+                  }
+                ]
+              }
+            }
+          }
+        `);
+      });
+
+      it("should allow to override type", () => {
+        const obj = { __typename: "Post" };
+        const result = apolloMock(document, {}, { search: [obj] });
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "request": {
+              "query": "...",
+              "variables": {}
+            },
+            "result": {
+              "data": {
+                "search": [
+                  {
+                    "__typename": "Post",
+                    "idField": "Post-idField",
+                    "author": null
+                  }
+                ]
+              }
+            }
+          }
+        `);
+      });
+
+      it("should ignore invalid type", () => {
+        const obj = { __typename: "Foo" };
+        const result = apolloMock(document, {}, { search: [obj] });
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "request": {
+              "query": "...",
+              "variables": {}
+            },
+            "result": {
+              "data": {
+                "search": [
+                  {
+                    "__typename": "Author",
+                    "idField": "Author-idField",
+                    "posts": null
+                  }
+                ]
+              }
+            }
+          }
+        `);
+      });
+    });
   });
 
   describe("mutation", () => {
@@ -789,23 +1038,29 @@ describe("codegenApolloMock", () => {
           operations.createAuthor.variables = (values = {}, options = {}) => {
             const __typename = '';
             values = (({  }) => ({  }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
 
             };
+            return result;
           }
           operations.createAuthor.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ createAuthor = null }) => ({ createAuthor }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
               createAuthor: ((values = {}, options = {}) => {
                 const __typename = 'Author';
                 values = (({ idField = null }) => ({ idField }))(values);
-                return {
+                values.__typename = __typename;
+                let result = {
                   idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
+                return result;
               })(values.createAuthor || undefined, options)
             };
+            return result;
           }"
         `);
       });
@@ -867,40 +1122,49 @@ describe("codegenApolloMock", () => {
           operations.createAuthorExtensive.variables = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ author = undefined, authorNonNull = undefined }) => ({ author, authorNonNull }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
               author: !values.author ? values.author : (AuthorInput)(values.author, options),
               authorNonNull: (AuthorInput)(values.authorNonNull || undefined, options)
             };
+            return result;
           }
           operations.createAuthorExtensive.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ createAuthorExtensive = null }) => ({ createAuthorExtensive }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
               createAuthorExtensive: ((values = {}, options = {}) => {
                 const __typename = 'Author';
                 values = (({ idField = null }) => ({ idField }))(values);
-                return {
+                values.__typename = __typename;
+                let result = {
                   idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
+                return result;
               })(values.createAuthorExtensive || undefined, options)
             };
+            return result;
           }
 
           const PostInput = (values = {}, options = {}) => {
             const __typename = 'PostInput';
             values = (({ idField = undefined, author = undefined, authorNonNull = undefined }) => ({ idField, author, authorNonNull }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
               idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
               author: !values.author ? values.author : (AuthorInput)(values.author, options),
               authorNonNull: (AuthorInput)(values.authorNonNull || undefined, options)
             };
+            return result;
           }
 
           const AuthorInput = (values = {}, options = {}) => {
             const __typename = 'AuthorInput';
             values = (({ idField = undefined, stringField = undefined, stringFieldNonNull = undefined, intField = undefined, intFieldNonNull = undefined, posts = undefined, postsNonNull = undefined }) => ({ idField, stringField, stringFieldNonNull, intField, intFieldNonNull, posts, postsNonNull }))(values);
-            return {
+            values.__typename = __typename;
+            let result = {
               idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
               stringField: values.stringField,
               stringFieldNonNull: (values.stringFieldNonNull === null || values.stringFieldNonNull === undefined) ? [__typename, 'stringFieldNonNull'].filter(v => v).join('-') : values.stringFieldNonNull,
@@ -909,6 +1173,7 @@ describe("codegenApolloMock", () => {
               posts: !values.posts ? values.posts : values.posts.map(item => (PostInput)(item, options)),
               postsNonNull: (values.postsNonNull || []).map(item => (PostInput)(item, options))
             };
+            return result;
           }"
         `);
       });
