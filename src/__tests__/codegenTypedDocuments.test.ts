@@ -36,16 +36,14 @@ const getConfig = (
 });
 
 describe("codegenTypedDocuments", () => {
-  it("should not have any output when there are no documents", async (done) => {
+  it("should not have any output when there are no documents", async () => {
     const config = getConfig();
     const output = await codegen(config);
 
     expect(output).toMatchInlineSnapshot(`""`);
-
-    done();
   });
 
-  it("should have ambient module declarations for each document", async (done) => {
+  it("should have ambient module declarations for each document", async () => {
     const queryDocument = parse(`
       query authors {
         authors {
@@ -85,11 +83,9 @@ describe("codegenTypedDocuments", () => {
         export default createAuthor;
       }"
     `);
-
-    done();
   });
 
-  it("should not have default exports for multiple operations", async (done) => {
+  it("should not have default exports for multiple operations", async () => {
     const queryDocument = parse(`
       query authors {
         authors {
@@ -141,7 +137,5 @@ describe("codegenTypedDocuments", () => {
         export const alsoCreateAuthor: TypedDocumentNode<AlsoCreateAuthorMutationVariables, AlsoCreateAuthorMutation>;
       }"
     `);
-
-    done();
   });
 });

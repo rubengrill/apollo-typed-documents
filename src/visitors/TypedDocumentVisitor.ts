@@ -1,74 +1,55 @@
-import { OperationDefinitionNode } from "graphql";
+import { DefinitionNode, DocumentNode, OperationDefinitionNode } from "graphql";
 import { pascalCase } from "pascal-case";
 
-export interface Config {
-  typesModule: string;
-}
+export type Config = { typesModule: string };
+
+const isOperationDefinitionNode = (
+  node: DefinitionNode
+): node is OperationDefinitionNode => node.kind === "OperationDefinition";
 
 export default class TypedDocumentVisitor {
-  output: string[];
-  basename: string;
-  config: Config;
-  operationOutput: { [operationName: string]: string } = {};
+  constructor(
+    readonly output: string[],
+    readonly basename: string,
+    readonly config: Config
+  ) {}
 
-  constructor(output: string[], basename: string, config: Config) {
-    this.output = output;
-    this.basename = basename;
-    this.config = config;
-  }
+  Document = (node: DocumentNode) => {
+    const operationNodes = node.definitions.filter(isOperationDefinitionNode);
+    const output: string[] = [];
 
-  get Document() {
-    return {
-      leave: () => {
-        const output: string[] = [];
-        const operationOutputKeys = Object.keys(this.operationOutput);
-        const operationOutputValues = Object.values(this.operationOutput);
+    output.push(`declare module "*/${this.basename}" {\n`);
+    output.push(
+      '  import { TypedDocumentNode } from "apollo-typed-documents";\n'
+    );
 
-        output.push(`declare module "*/${this.basename}" {\n`);
-        output.push(
-          '  import { TypedDocumentNode } from "apollo-typed-documents";\n'
-        );
+    operationNodes.forEach((operationNode) => {
+      if (!operationNode.name) {
+        throw new Error("Operation must have a name");
+      }
 
-        operationOutputValues.forEach((operationOutput) => {
-          output.push(operationOutput);
-          output.push("\n");
-        });
+      const operationName = operationNode.name.value;
+      const typeName = pascalCase(operationName);
+      const typeNameSuffix = pascalCase(operationNode.operation);
 
-        if (operationOutputKeys.length === 1) {
-          const [operationName] = operationOutputKeys;
-          output.push(`  export default ${operationName};\n`);
-        }
+      output.push(
+        `  import { ${typeName}${typeNameSuffix}, ${typeName}${typeNameSuffix}Variables } from "${this.config.typesModule}";\n`
+      );
+      output.push(
+        `  export const ${operationName}: TypedDocumentNode<${typeName}${typeNameSuffix}Variables, ${typeName}${typeNameSuffix}>;\n`
+      );
+    });
 
-        output.push(`}`);
+    if (operationNodes.length === 1) {
+      const operationName = operationNodes[0].name?.value;
 
-        this.output.push(output.join(""));
-      },
-    };
-  }
+      output.push(`  export default ${operationName};\n`);
+    }
 
-  get OperationDefinition() {
-    return {
-      enter: (node: OperationDefinitionNode) => {
-        if (!node.name) {
-          throw new Error("Operation must have a name");
-        }
+    output.push(`}`);
 
-        const operationName = node.name.value;
-        const typeName = pascalCase(operationName);
-        const typeNameSuffix = pascalCase(node.operation);
-        const output: string[] = [];
+    this.output.push(output.join(""));
 
-        output.push(
-          `  import { ${typeName}${typeNameSuffix}, ${typeName}${typeNameSuffix}Variables } from "${this.config.typesModule}";\n`
-        );
-        output.push(
-          `  export const ${operationName}: TypedDocumentNode<${typeName}${typeNameSuffix}Variables, ${typeName}${typeNameSuffix}>;`
-        );
-
-        this.operationOutput[operationName] = output.join("");
-
-        return false; // No need to traverse deeper
-      },
-    };
-  }
+    return false; // No need to traverse deeper
+  };
 }

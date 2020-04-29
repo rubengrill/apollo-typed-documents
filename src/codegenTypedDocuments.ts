@@ -7,11 +7,10 @@ import {
 import { visit } from "graphql";
 
 import TypedDocumentVisitor from "./visitors/TypedDocumentVisitor";
-import TypedVisitor from "./visitors/TypedVisitor";
 
 export type Config = { typesModule: string };
 
-export const plugin: PluginFunction<Config> = (schema, documents, config) => {
+export const plugin: PluginFunction<Config> = (_schema, documents, config) => {
   const output: string[] = [];
 
   documents.forEach((document) => {
@@ -23,15 +22,9 @@ export const plugin: PluginFunction<Config> = (schema, documents, config) => {
     }
 
     const basename = path.basename(document.location);
-    const typedVisitor = new TypedVisitor(schema);
-    const typedDocumentVisitor = new TypedDocumentVisitor(
-      output,
-      basename,
-      config
-    );
-    const typedDocumentNode = visit(document.document, typedVisitor);
+    const visitor = new TypedDocumentVisitor(output, basename, config);
 
-    visit(typedDocumentNode, typedDocumentVisitor);
+    visit(document.document, visitor);
   });
 
   return output.join("\n\n");

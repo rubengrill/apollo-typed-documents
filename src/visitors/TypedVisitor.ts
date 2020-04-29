@@ -1,5 +1,10 @@
 import {
+  DefinitionNode,
+  DocumentNode,
   FieldNode,
+  FragmentDefinitionNode,
+  FragmentSpreadNode,
+  GraphQLAbstractType,
   GraphQLEnumType,
   GraphQLInputObjectType,
   GraphQLInterfaceType,
@@ -9,7 +14,9 @@ import {
   GraphQLUnionType,
   InlineFragmentNode,
   OperationDefinitionNode,
+  SelectionNode,
   VariableDefinitionNode,
+  isAbstractType,
   isEnumType,
   isInputObjectType,
   isInterfaceType,
@@ -24,9 +31,10 @@ export interface TypedField {
   name: string;
   inputFields: TypedField[];
   outputFields: TypedField[];
-  fragments: { typenames: string[]; field: TypedField }[];
   isNonNull: boolean;
   isList: boolean;
+  isFragment: boolean;
+  typenames: string[];
 
   scalarType?: GraphQLScalarType;
   enumType?: GraphQLEnumType;
@@ -45,50 +53,128 @@ const createTypedField = (
 ): TypedField => ({
   inputFields: [],
   outputFields: [],
-  fragments: [],
   isNonNull: false,
   isList: false,
+  isFragment: false,
+  typenames: [],
   ...field,
 });
 
+const isFragmentDefinitionNode = (
+  node: DefinitionNode
+): node is FragmentDefinitionNode => node.kind === "FragmentDefinition";
+
 export default class TypedVisitor {
-  schema: GraphQLSchema;
-  parentFields: TypedField[] = [];
-  parentField?: TypedField;
-  inputObjectTypeFields: { [inputObjectTypeName: string]: TypedField[] } = {};
-  leaveCallbacks = new Map<unknown, () => void>();
+  readonly inputObjectTypeFields: { [name: string]: TypedField[] } = {};
+  readonly fragmentFields: { [name: string]: TypedField } = {};
 
-  constructor(schema: GraphQLSchema) {
-    this.schema = schema;
-  }
+  constructor(readonly schema: GraphQLSchema) {}
 
-  putParentField(parentField: TypedField) {
-    this.parentFields.push(parentField);
-    this.parentField = parentField;
-  }
+  Document = (node: DocumentNode) => {
+    const fragmentNodes = node.definitions.filter(isFragmentDefinitionNode);
 
-  popParentField() {
-    this.parentFields.splice(this.parentFields.length - 1, 1);
-    this.parentField = this.parentFields[this.parentFields.length - 1];
-  }
+    fragmentNodes.forEach((fragmentNode) => {
+      const name = fragmentNode.name.value;
+      this.fragmentFields[name] = createTypedField({ name });
+    });
 
-  getParentField() {
-    if (!this.parentField) {
-      throw new Error("No parent field set");
+    fragmentNodes.forEach((fragmentNode) => {
+      const name = fragmentNode.name.value;
+      const typedField = this.getOutputFieldForFragment(fragmentNode);
+      Object.assign(this.fragmentFields[name], typedField);
+    });
+  };
+
+  OperationDefinition = (_node: OperationDefinitionNode) => {
+    const node = _node as TypedOperationDefinitionNode;
+
+    let type: GraphQLObjectType | undefined | null;
+
+    switch (node.operation) {
+      case "mutation":
+        type = this.schema.getMutationType();
+        break;
+      case "subscription":
+        type = this.schema.getSubscriptionType();
+        break;
+      default:
+        type = this.schema.getQueryType();
     }
-    return this.parentField;
-  }
 
-  invokeLeaveCallback(node: unknown) {
-    const leaveCallback = this.leaveCallbacks.get(node);
+    if (!type) {
+      throw new Error(`Couldn't find type for ${node.operation}`);
+    }
 
-    if (leaveCallback) {
-      leaveCallback();
-      this.leaveCallbacks.delete(node);
+    const typedField = createTypedField({
+      name: type.name,
+      objectType: type,
+      typenames: this.getTypenames(type),
+    });
+
+    typedField.inputFields = this.getInputFields(
+      node.variableDefinitions || []
+    );
+
+    typedField.outputFields = this.getOutputFields(
+      node.selectionSet.selections,
+      typedField
+    );
+
+    node.typed = typedField;
+
+    return false; // No need to traverse deeper
+  };
+
+  getTypenames(type: GraphQLObjectType | GraphQLAbstractType) {
+    if (isObjectType(type)) {
+      return [type.name];
+    } else if (isAbstractType(type)) {
+      return this.schema.getPossibleTypes(type).map((type) => type.name);
+    } else {
+      return [];
     }
   }
 
-  getInputObjectTypeFields(type: GraphQLInputObjectType): TypedField[] {
+  getInputFields(nodes: readonly VariableDefinitionNode[]) {
+    return nodes.map((node) => {
+      const typedField = createTypedField({ name: node.variable.name.value });
+
+      let nodeType = node.type;
+
+      if (nodeType.kind === "NonNullType") {
+        typedField.isNonNull = true;
+        nodeType = nodeType.type;
+      }
+
+      if (nodeType.kind === "ListType") {
+        typedField.isList = true;
+        nodeType = nodeType.type;
+      }
+
+      if (nodeType.kind === "NonNullType") {
+        nodeType = nodeType.type;
+      }
+
+      if (nodeType.kind !== "NamedType") {
+        throw new Error("Not supported");
+      }
+
+      const type = this.schema.getType(nodeType.name.value);
+
+      if (isInputObjectType(type)) {
+        typedField.inputObjectType = type;
+        typedField.inputFields = this.getInputFieldsForInputObjectType(type);
+      } else if (isScalarType(type)) {
+        typedField.scalarType = type;
+      } else if (isEnumType(type)) {
+        typedField.enumType = type;
+      }
+
+      return typedField;
+    });
+  }
+
+  getInputFieldsForInputObjectType(type: GraphQLInputObjectType) {
     if (!this.inputObjectTypeFields[type.name]) {
       const fields = Object.values(type.getFields());
 
@@ -115,7 +201,9 @@ export default class TypedVisitor {
 
         if (isInputObjectType(fieldType)) {
           typedField.inputObjectType = fieldType;
-          typedField.inputFields = this.getInputObjectTypeFields(fieldType);
+          typedField.inputFields = this.getInputFieldsForInputObjectType(
+            fieldType
+          );
         } else if (isScalarType(fieldType)) {
           typedField.scalarType = fieldType;
         } else if (isEnumType(fieldType)) {
@@ -129,183 +217,106 @@ export default class TypedVisitor {
     return this.inputObjectTypeFields[type.name];
   }
 
-  get OperationDefinition() {
-    return {
-      enter: (_node: OperationDefinitionNode) => {
-        const node = _node as TypedOperationDefinitionNode;
-
-        let type: GraphQLObjectType | undefined | null;
-
-        switch (node.operation) {
-          case "mutation":
-            type = this.schema.getMutationType();
-            break;
-          case "subscription":
-            type = this.schema.getSubscriptionType();
-            break;
-          default:
-            type = this.schema.getQueryType();
-        }
-
-        if (!type) {
-          throw new Error(`Couldn't find type for ${node.operation}`);
-        }
-
-        const typedField = createTypedField({
-          name: type.name,
-          objectType: type,
-        });
-
-        node.typed = typedField;
-
-        this.putParentField(typedField);
-      },
-      leave: () => {
-        this.popParentField();
-      },
-    };
+  getOutputFields(nodes: readonly SelectionNode[], parentField: TypedField) {
+    return nodes.map((node) => {
+      if (node.kind === "Field") {
+        return this.getOutputFieldForField(node, parentField);
+      } else if (node.kind === "InlineFragment") {
+        return this.getOutputFieldForFragment(node);
+      } else if (node.kind === "FragmentSpread") {
+        return this.getOutputFieldForFragmentSpread(node);
+      } else {
+        throw new Error("Not supported");
+      }
+    });
   }
 
-  get VariableDefinition() {
-    return {
-      enter: (node: VariableDefinitionNode) => {
-        const typedField = createTypedField({ name: node.variable.name.value });
+  getOutputFieldForField(node: FieldNode, parentField: TypedField) {
+    const parentType = parentField.objectType || parentField.interfaceType;
 
-        let nodeType = node.type;
+    if (!parentType) {
+      throw new Error("Parent type is not an object or interface type");
+    }
 
-        if (nodeType.kind === "NonNullType") {
-          typedField.isNonNull = true;
-          nodeType = nodeType.type;
-        }
+    const fields = parentType.getFields();
+    const field = fields[node.name.value];
+    const typedField = createTypedField({ name: node.name.value });
 
-        if (nodeType.kind === "ListType") {
-          typedField.isList = true;
-          nodeType = nodeType.type;
-        }
+    let type = field.type;
 
-        if (nodeType.kind === "NonNullType") {
-          nodeType = nodeType.type;
-        }
+    if (isNonNullType(type)) {
+      typedField.isNonNull = true;
+      type = type.ofType;
+    }
 
-        if (nodeType.kind !== "NamedType") {
-          throw new Error("Not supported");
-        }
+    if (isListType(type)) {
+      typedField.isList = true;
+      type = type.ofType;
+    }
 
-        const type = this.schema.getType(nodeType.name.value);
+    if (isNonNullType(type)) {
+      type = type.ofType;
+    }
 
-        if (isInputObjectType(type)) {
-          typedField.inputObjectType = type;
-          typedField.inputFields = this.getInputObjectTypeFields(type);
-        } else if (isScalarType(type)) {
-          typedField.scalarType = type;
-        } else if (isEnumType(type)) {
-          typedField.enumType = type;
-        }
+    if (isObjectType(type)) {
+      typedField.objectType = type;
+    } else if (isInterfaceType(type)) {
+      typedField.interfaceType = type;
+    } else if (isUnionType(type)) {
+      typedField.unionType = type;
+    } else if (isScalarType(type)) {
+      typedField.scalarType = type;
+    } else if (isEnumType(type)) {
+      typedField.enumType = type;
+    }
 
-        const parentField = this.getParentField();
+    if (isObjectType(type) || isAbstractType(type)) {
+      typedField.typenames = this.getTypenames(type);
+      typedField.outputFields = this.getOutputFields(
+        node.selectionSet?.selections || [],
+        typedField
+      );
+    }
 
-        parentField.inputFields.push(typedField);
-
-        return false; // No need to traverse deeper
-      },
-    };
+    return typedField;
   }
 
-  get Field() {
-    return {
-      enter: (node: FieldNode) => {
-        const parentField = this.getParentField();
-        const parentType = parentField.objectType || parentField.interfaceType;
+  getOutputFieldForFragment(node: InlineFragmentNode | FragmentDefinitionNode) {
+    const typedField = createTypedField({
+      name: node.kind,
+      isFragment: true,
+    });
 
-        if (!parentType) {
-          throw new Error("Parent type is not an object or interface type");
-        }
+    if (node.typeCondition) {
+      const type = this.schema.getType(node.typeCondition.name.value);
 
-        const fields = parentType.getFields();
-        const field = fields[node.name.value];
-        const typedField = createTypedField({ name: node.name.value });
+      if (isObjectType(type)) {
+        typedField.objectType = type;
+        typedField.typenames = this.getTypenames(type);
+      } else if (isInterfaceType(type)) {
+        typedField.interfaceType = type;
+        typedField.typenames = this.getTypenames(type);
+      } else if (isUnionType(type)) {
+        typedField.unionType = type;
+        typedField.typenames = this.getTypenames(type);
+      }
+    }
 
-        let type = field.type;
+    typedField.outputFields = this.getOutputFields(
+      node.selectionSet.selections,
+      typedField
+    );
 
-        if (isNonNullType(type)) {
-          typedField.isNonNull = true;
-          type = type.ofType;
-        }
-
-        if (isListType(type)) {
-          typedField.isList = true;
-          type = type.ofType;
-        }
-
-        if (isNonNullType(type)) {
-          type = type.ofType;
-        }
-
-        let newParentField;
-
-        if (isObjectType(type)) {
-          typedField.objectType = type;
-          newParentField = typedField;
-        } else if (isInterfaceType(type)) {
-          typedField.interfaceType = type;
-          newParentField = typedField;
-        } else if (isUnionType(type)) {
-          typedField.unionType = type;
-          newParentField = typedField;
-        } else if (isScalarType(type)) {
-          typedField.scalarType = type;
-        } else if (isEnumType(type)) {
-          typedField.enumType = type;
-        }
-
-        parentField.outputFields.push(typedField);
-
-        if (newParentField) {
-          this.putParentField(newParentField);
-          this.leaveCallbacks.set(node, () => this.popParentField());
-        }
-      },
-      leave: (node: FieldNode) => {
-        this.invokeLeaveCallback(node);
-      },
-    };
+    return typedField;
   }
 
-  get InlineFragment() {
-    return {
-      enter: (node: InlineFragmentNode) => {
-        if (!node.typeCondition) {
-          return;
-        }
+  getOutputFieldForFragmentSpread(node: FragmentSpreadNode) {
+    const typedField = this.fragmentFields[node.name.value];
 
-        const type = this.schema.getType(node.typeCondition.name.value);
+    if (!typedField) {
+      throw new Error(`Fragment "${node.name.value}" not defined`);
+    }
 
-        if (isObjectType(type) || isInterfaceType(type)) {
-          const typedField = createTypedField({ name: "InlineFragment" });
-
-          let typenames: string[] = [];
-
-          if (isObjectType(type)) {
-            typedField.objectType = type;
-            typenames = [type.name];
-          } else if (isInterfaceType(type)) {
-            typedField.interfaceType = type;
-            typenames = this.schema
-              .getPossibleTypes(type)
-              .map((field) => field.name);
-          }
-
-          const parentField = this.getParentField();
-
-          parentField.fragments.push({ typenames, field: typedField });
-
-          this.putParentField(typedField);
-          this.leaveCallbacks.set(node, () => this.popParentField());
-        }
-      },
-      leave: (node: InlineFragmentNode) => {
-        this.invokeLeaveCallback(node);
-      },
-    };
+    return typedField;
   }
 }
