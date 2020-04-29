@@ -34,6 +34,7 @@ export interface TypedField {
   isNonNull: boolean;
   isList: boolean;
   isFragment: boolean;
+  isTypename: boolean;
   typenames: string[];
 
   scalarType?: GraphQLScalarType;
@@ -56,6 +57,7 @@ const createTypedField = (
   isNonNull: false,
   isList: false,
   isFragment: false,
+  isTypename: false,
   typenames: [],
   ...field,
 });
@@ -232,6 +234,12 @@ export default class TypedVisitor {
   }
 
   getOutputFieldForField(node: FieldNode, parentField: TypedField) {
+    const name = node.name.value;
+
+    if (name === "__typename") {
+      return createTypedField({ name, isTypename: true });
+    }
+
     const parentType = parentField.objectType || parentField.interfaceType;
 
     if (!parentType) {
@@ -239,8 +247,15 @@ export default class TypedVisitor {
     }
 
     const fields = parentType.getFields();
-    const field = fields[node.name.value];
-    const typedField = createTypedField({ name: node.name.value });
+    const field = fields[name];
+
+    if (!field) {
+      throw new Error(
+        `Field "${name}" does not exist on type "${parentType.name}"`
+      );
+    }
+
+    const typedField = createTypedField({ name });
 
     let type = field.type;
 

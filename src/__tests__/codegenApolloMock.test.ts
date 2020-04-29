@@ -1136,6 +1136,144 @@ describe("codegenApolloMock", () => {
         `);
       });
     });
+
+    describe("with __typename", () => {
+      let document: DocumentNode;
+      let output: string;
+      let apolloMock: ApolloMockFn;
+
+      beforeEach(async () => {
+        document = parse(`
+          query typename {
+            authors {
+              __typename
+              posts {
+                idField
+              }
+            }
+            objects {
+              __typename
+            }
+            search {
+              __typename
+            }
+          }
+        `);
+
+        const documents = [{ document, location: "typename.gql" }];
+        const config = getConfig({ documents });
+
+        output = await codegen(config);
+        apolloMock = getApolloMock(output);
+      });
+
+      it("should have matching operation", () => {
+        expect(output).toMatchInlineSnapshot(`
+          "import { createApolloMock } from 'apollo-typed-documents';
+
+          const operations = {};
+
+          export default createApolloMock(operations);
+
+          operations.typename = {};
+          operations.typename.variables = (values = {}, options = {}) => {
+            const __typename = '';
+            values = (({  }) => ({  }))(values);
+            values.__typename = __typename;
+            return {
+
+            };
+          }
+          operations.typename.data = (values = {}, options = {}) => {
+            const __typename = '';
+            values = (({ authors = null, objects = null, search = null }) => ({ authors, objects, search }))(values);
+            values.__typename = __typename;
+            return {
+              authors: !values.authors ? values.authors : values.authors.map(item => ((values = {}, options = {}) => {
+                const __typename = 'Author';
+                values = (({ __typename = null, posts = null }) => ({ __typename, posts }))(values);
+                values.__typename = __typename;
+                return {
+                  __typename: values.__typename,
+                  posts: !values.posts ? values.posts : values.posts.map(item => ((values = {}, options = {}) => {
+                    const __typename = 'Post';
+                    values = (({ idField = null }) => ({ idField }))(values);
+                    values.__typename = __typename;
+                    return {
+                      idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                      ...(options.addTypename ? { __typename } : {})
+                    };
+                  })(item, options)),
+                  ...(options.addTypename ? { __typename } : {})
+                };
+              })(item, options)),
+              objects: !values.objects ? values.objects : values.objects.map(item => ((values = {}, options = {}) => {
+                const typenames = ['Author', 'Post'];
+                const __typename = typenames.find(typename => typename === values.__typename) || typenames[0];
+                values = (({ __typename = null }) => ({ __typename }))(values);
+                values.__typename = __typename;
+                return {
+                  __typename: values.__typename,
+                  ...(options.addTypename ? { __typename } : {})
+                };
+              })(item, options)),
+              search: !values.search ? values.search : values.search.map(item => ((values = {}, options = {}) => {
+                const typenames = ['Author', 'Post'];
+                const __typename = typenames.find(typename => typename === values.__typename) || typenames[0];
+                values = (({ __typename = null }) => ({ __typename }))(values);
+                values.__typename = __typename;
+                return {
+                  __typename: values.__typename,
+                  ...(options.addTypename ? { __typename } : {})
+                };
+              })(item, options))
+            };
+          }"
+        `);
+      });
+
+      it("should include __typename even when disabled in options", () => {
+        const result = apolloMock(
+          document,
+          {},
+          { authors: [{ posts: [{}] }], objects: [{}], search: [{}] },
+          { addTypename: false }
+        );
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "request": {
+              "query": "...",
+              "variables": {}
+            },
+            "result": {
+              "data": {
+                "authors": [
+                  {
+                    "__typename": "Author",
+                    "posts": [
+                      {
+                        "idField": "Post-idField"
+                      }
+                    ]
+                  }
+                ],
+                "objects": [
+                  {
+                    "__typename": "Author"
+                  }
+                ],
+                "search": [
+                  {
+                    "__typename": "Author"
+                  }
+                ]
+              }
+            }
+          }
+        `);
+      });
+    });
   });
 
   describe("mutation", () => {
