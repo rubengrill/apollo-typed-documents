@@ -159,7 +159,7 @@ describe("codegenApolloMock", () => {
             return {
 
             };
-          }
+          };
           operations.authors.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ authors = null }) => ({ authors }))(values);
@@ -170,12 +170,12 @@ describe("codegenApolloMock", () => {
                 values = (({ idField = null }) => ({ idField }))(values);
                 values.__typename = __typename;
                 return {
-                  idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                  idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
               })(item, options))
             };
-          }"
+          };"
         `);
       });
 
@@ -352,7 +352,7 @@ describe("codegenApolloMock", () => {
             return {
 
             };
-          }
+          };
           operations.authors.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ authors = null }) => ({ authors }))(values);
@@ -363,23 +363,23 @@ describe("codegenApolloMock", () => {
                 values = (({ idField = null, stringField = null, stringFieldNonNull = null, intField = null, intFieldNonNull = null, posts = null, postsNonNull = null }) => ({ idField, stringField, stringFieldNonNull, intField, intFieldNonNull, posts, postsNonNull }))(values);
                 values.__typename = __typename;
                 return {
-                  idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                  idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                   stringField: values.stringField,
-                  stringFieldNonNull: (values.stringFieldNonNull === null || values.stringFieldNonNull === undefined) ? [__typename, 'stringFieldNonNull'].filter(v => v).join('-') : values.stringFieldNonNull,
+                  stringFieldNonNull: (values.stringFieldNonNull === null || values.stringFieldNonNull === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'String', mappedTypeName: 'string', fieldName: 'stringFieldNonNull', __typename, scalarValues: options.scalarValues }) : values.stringFieldNonNull,
                   intField: values.intField,
-                  intFieldNonNull: (values.intFieldNonNull === null || values.intFieldNonNull === undefined) ? 1 : values.intFieldNonNull,
+                  intFieldNonNull: (values.intFieldNonNull === null || values.intFieldNonNull === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'Int', mappedTypeName: 'number', fieldName: 'intFieldNonNull', __typename, scalarValues: options.scalarValues }) : values.intFieldNonNull,
                   posts: !values.posts ? values.posts : values.posts.map(item => ((values = {}, options = {}) => {
                     const __typename = 'Post';
                     values = (({ idField = null, author = null, authorNonNull = null }) => ({ idField, author, authorNonNull }))(values);
                     values.__typename = __typename;
                     return {
-                      idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                      idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                       author: !values.author ? values.author : ((values = {}, options = {}) => {
                         const __typename = 'Author';
                         values = (({ idField = null }) => ({ idField }))(values);
                         values.__typename = __typename;
                         return {
-                          idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                          idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                           ...(options.addTypename ? { __typename } : {})
                         };
                       })(values.author, options),
@@ -388,7 +388,7 @@ describe("codegenApolloMock", () => {
                         values = (({ idField = null }) => ({ idField }))(values);
                         values.__typename = __typename;
                         return {
-                          idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                          idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                           ...(options.addTypename ? { __typename } : {})
                         };
                       })(values.authorNonNull || undefined, options),
@@ -400,13 +400,13 @@ describe("codegenApolloMock", () => {
                     values = (({ idField = null, author = null, authorNonNull = null }) => ({ idField, author, authorNonNull }))(values);
                     values.__typename = __typename;
                     return {
-                      idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                      idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                       author: !values.author ? values.author : ((values = {}, options = {}) => {
                         const __typename = 'Author';
                         values = (({ idField = null }) => ({ idField }))(values);
                         values.__typename = __typename;
                         return {
-                          idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                          idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                           ...(options.addTypename ? { __typename } : {})
                         };
                       })(values.author, options),
@@ -415,7 +415,7 @@ describe("codegenApolloMock", () => {
                         values = (({ idField = null }) => ({ idField }))(values);
                         values.__typename = __typename;
                         return {
-                          idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                          idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                           ...(options.addTypename ? { __typename } : {})
                         };
                       })(values.authorNonNull || undefined, options),
@@ -426,7 +426,7 @@ describe("codegenApolloMock", () => {
                 };
               })(item, options))
             };
-          }"
+          };"
         `);
       });
 
@@ -589,7 +589,7 @@ describe("codegenApolloMock", () => {
             return {
 
             };
-          }
+          };
           operations.authors.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ authors = null }) => ({ authors }))(values);
@@ -600,12 +600,12 @@ describe("codegenApolloMock", () => {
                 values = (({ idField = null }) => ({ idField }))(values);
                 values.__typename = __typename;
                 return {
-                  idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                  idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
               })(item, options))
             };
-          }
+          };
 
           operations.authorsNonNull = {};
           operations.authorsNonNull.variables = (values = {}, options = {}) => {
@@ -615,7 +615,7 @@ describe("codegenApolloMock", () => {
             return {
 
             };
-          }
+          };
           operations.authorsNonNull.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ authorsNonNull = null }) => ({ authorsNonNull }))(values);
@@ -626,12 +626,12 @@ describe("codegenApolloMock", () => {
                 values = (({ idField = null }) => ({ idField }))(values);
                 values.__typename = __typename;
                 return {
-                  idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                  idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
               })(item, options))
             };
-          }"
+          };"
         `);
       });
     });
@@ -673,7 +673,7 @@ describe("codegenApolloMock", () => {
             return {
 
             };
-          }
+          };
           operations.objects.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ objects = null }) => ({ objects }))(values);
@@ -685,12 +685,12 @@ describe("codegenApolloMock", () => {
                 values = (({ idField = null }) => ({ idField }))(values);
                 values.__typename = __typename;
                 return {
-                  idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                  idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
               })(item, options))
             };
-          }"
+          };"
         `);
       });
 
@@ -815,7 +815,7 @@ describe("codegenApolloMock", () => {
             return {
 
             };
-          }
+          };
           operations.search.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ search = null }) => ({ search }))(values);
@@ -830,7 +830,7 @@ describe("codegenApolloMock", () => {
                   ...(['Author', 'Post'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
                     values = (({ idField = null }) => ({ idField }))(values);
                     return {
-                      idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField
+                      idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField
                     };
                   })(values, options) : {}),
                   ...(['Author'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
@@ -841,7 +841,7 @@ describe("codegenApolloMock", () => {
                         values = (({ idField = null }) => ({ idField }))(values);
                         values.__typename = __typename;
                         return {
-                          idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                          idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                           ...(options.addTypename ? { __typename } : {})
                         };
                       })(item, options))
@@ -855,7 +855,7 @@ describe("codegenApolloMock", () => {
                         values = (({ idField = null }) => ({ idField }))(values);
                         values.__typename = __typename;
                         return {
-                          idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                          idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                           ...(options.addTypename ? { __typename } : {})
                         };
                       })(values.author, options)
@@ -865,7 +865,7 @@ describe("codegenApolloMock", () => {
                 };
               })(item, options))
             };
-          }"
+          };"
         `);
       });
 
@@ -1003,7 +1003,7 @@ describe("codegenApolloMock", () => {
             return {
 
             };
-          }
+          };
           operations.search.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ search = null }) => ({ search }))(values);
@@ -1021,7 +1021,7 @@ describe("codegenApolloMock", () => {
                       ...(['Author', 'Post'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
                         values = (({ idField = null }) => ({ idField }))(values);
                         return {
-                          idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField
+                          idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField
                         };
                       })(values, options) : {}),
                       ...(['Author'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
@@ -1032,7 +1032,7 @@ describe("codegenApolloMock", () => {
                             values = (({ idField = null }) => ({ idField }))(values);
                             values.__typename = __typename;
                             return {
-                              idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                              idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                               ...(options.addTypename ? { __typename } : {})
                             };
                           })(item, options))
@@ -1046,7 +1046,7 @@ describe("codegenApolloMock", () => {
                             values = (({ idField = null }) => ({ idField }))(values);
                             values.__typename = __typename;
                             return {
-                              idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                              idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                               ...(options.addTypename ? { __typename } : {})
                             };
                           })(values.author, options)
@@ -1058,7 +1058,7 @@ describe("codegenApolloMock", () => {
                 };
               })(item, options))
             };
-          }"
+          };"
         `);
       });
 
@@ -1183,7 +1183,7 @@ describe("codegenApolloMock", () => {
             return {
 
             };
-          }
+          };
           operations.typename.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ authors = null, objects = null, search = null }) => ({ authors, objects, search }))(values);
@@ -1200,7 +1200,7 @@ describe("codegenApolloMock", () => {
                     values = (({ idField = null }) => ({ idField }))(values);
                     values.__typename = __typename;
                     return {
-                      idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                      idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                       ...(options.addTypename ? { __typename } : {})
                     };
                   })(item, options)),
@@ -1228,7 +1228,7 @@ describe("codegenApolloMock", () => {
                 };
               })(item, options))
             };
-          }"
+          };"
         `);
       });
 
@@ -1314,7 +1314,7 @@ describe("codegenApolloMock", () => {
             return {
 
             };
-          }
+          };
           operations.createAuthor.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ createAuthor = null }) => ({ createAuthor }))(values);
@@ -1325,12 +1325,12 @@ describe("codegenApolloMock", () => {
                 values = (({ idField = null }) => ({ idField }))(values);
                 values.__typename = __typename;
                 return {
-                  idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                  idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
               })(values.createAuthor || undefined, options)
             };
-          }"
+          };"
         `);
       });
 
@@ -1394,7 +1394,7 @@ describe("codegenApolloMock", () => {
               author: !values.author ? values.author : (AuthorInput)(values.author, options),
               authorNonNull: (AuthorInput)(values.authorNonNull || undefined, options)
             };
-          }
+          };
           operations.createAuthorExtensive.data = (values = {}, options = {}) => {
             const __typename = '';
             values = (({ createAuthorExtensive = null }) => ({ createAuthorExtensive }))(values);
@@ -1405,38 +1405,38 @@ describe("codegenApolloMock", () => {
                 values = (({ idField = null }) => ({ idField }))(values);
                 values.__typename = __typename;
                 return {
-                  idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+                  idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
                   ...(options.addTypename ? { __typename } : {})
                 };
               })(values.createAuthorExtensive || undefined, options)
             };
-          }
+          };
 
           const PostInput = (values = {}, options = {}) => {
             const __typename = 'PostInput';
             values = (({ idField = undefined, author = undefined, authorNonNull = undefined }) => ({ idField, author, authorNonNull }))(values);
             values.__typename = __typename;
             return {
-              idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+              idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
               author: !values.author ? values.author : (AuthorInput)(values.author, options),
               authorNonNull: (AuthorInput)(values.authorNonNull || undefined, options)
             };
-          }
+          };
 
           const AuthorInput = (values = {}, options = {}) => {
             const __typename = 'AuthorInput';
             values = (({ idField = undefined, stringField = undefined, stringFieldNonNull = undefined, intField = undefined, intFieldNonNull = undefined, posts = undefined, postsNonNull = undefined }) => ({ idField, stringField, stringFieldNonNull, intField, intFieldNonNull, posts, postsNonNull }))(values);
             values.__typename = __typename;
             return {
-              idField: (values.idField === null || values.idField === undefined) ? [__typename, 'idField'].filter(v => v).join('-') : values.idField,
+              idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
               stringField: values.stringField,
-              stringFieldNonNull: (values.stringFieldNonNull === null || values.stringFieldNonNull === undefined) ? [__typename, 'stringFieldNonNull'].filter(v => v).join('-') : values.stringFieldNonNull,
+              stringFieldNonNull: (values.stringFieldNonNull === null || values.stringFieldNonNull === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'String', mappedTypeName: 'string', fieldName: 'stringFieldNonNull', __typename, scalarValues: options.scalarValues }) : values.stringFieldNonNull,
               intField: values.intField,
-              intFieldNonNull: (values.intFieldNonNull === null || values.intFieldNonNull === undefined) ? 1 : values.intFieldNonNull,
+              intFieldNonNull: (values.intFieldNonNull === null || values.intFieldNonNull === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'Int', mappedTypeName: 'number', fieldName: 'intFieldNonNull', __typename, scalarValues: options.scalarValues }) : values.intFieldNonNull,
               posts: !values.posts ? values.posts : values.posts.map(item => (PostInput)(item, options)),
               postsNonNull: (values.postsNonNull || []).map(item => (PostInput)(item, options))
             };
-          }"
+          };"
         `);
       });
 

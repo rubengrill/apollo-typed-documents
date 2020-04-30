@@ -1,10 +1,16 @@
 import { PluginFunction } from "@graphql-codegen/plugin-helpers";
+import {
+  ScalarsMap,
+  buildScalars,
+} from "@graphql-codegen/visitor-plugin-common";
 import { visit } from "graphql";
 
 import MockVisitor from "./visitors/MockVisitor";
 import TypedVisitor from "./visitors/TypedVisitor";
 
-export const plugin: PluginFunction = (schema, documents) => {
+export type Config = { scalars?: ScalarsMap };
+
+export const plugin: PluginFunction<Config> = (schema, documents, config) => {
   const documentNodes = documents.map((document) => {
     if (!document.document) {
       throw new Error("Missing document node");
@@ -14,7 +20,10 @@ export const plugin: PluginFunction = (schema, documents) => {
 
   const output: string[] = [];
   const inputObjectTypeOutput: string[] = [];
-  const mockVisitor = new MockVisitor(output, inputObjectTypeOutput);
+  const scalars = buildScalars(schema, config.scalars || {});
+  const mockVisitor = new MockVisitor(output, inputObjectTypeOutput, {
+    scalars,
+  });
 
   output.push("import { createApolloMock } from 'apollo-typed-documents';");
   output.push("const operations = {};");

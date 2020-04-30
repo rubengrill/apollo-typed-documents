@@ -1,13 +1,17 @@
+import { ParsedScalarsMap } from "@graphql-codegen/visitor-plugin-common";
 import { OperationDefinitionNode } from "graphql";
 
 import { TypedField, TypedOperationDefinitionNode } from "./TypedVisitor";
+
+export type Config = { scalars: ParsedScalarsMap };
 
 export default class MockVisitor {
   readonly inputObjectTypeOutputState: { [name: string]: true } = {};
 
   constructor(
     readonly output: string[],
-    readonly inputObjectTypeOutput: string[]
+    readonly inputObjectTypeOutput: string[],
+    readonly config: Config
   ) {}
 
   OperationDefinition = (_node: OperationDefinitionNode) => {
@@ -25,9 +29,10 @@ export default class MockVisitor {
     output.push(
       this.getFieldSetOutput(node.typed, { root: true, input: true })
     );
-    output.push("\n");
+    output.push(";\n");
     output.push(`operations.${name}.data = `);
     output.push(this.getFieldSetOutput(node.typed, { root: true }));
+    output.push(";");
 
     this.output.push(output.join(""));
 
@@ -130,6 +135,7 @@ export default class MockVisitor {
 
       output.push(`const ${inputObjectTypeName} = `);
       output.push(this.getFieldSetOutput(field, { input: true }));
+      output.push(";");
 
       this.inputObjectTypeOutput.push(output.join(""));
     }
@@ -189,23 +195,22 @@ export default class MockVisitor {
         }
       }
     } else if (field.scalarType || field.enumType) {
-      let defaultValue = "null";
+      let defaultValue;
 
       if (field.scalarType) {
-        switch (field.scalarType.name) {
-          case "Int":
-          case "Float":
-            defaultValue = "1";
-            break;
-          case "String":
-          case "ID":
-          case "UUID":
-            defaultValue = `[__typename, '${name}'].filter(v => v).join('-')`;
-            break;
-          case "Boolean":
-            defaultValue = "false";
-            break;
-        }
+        const scalarTypeName = field.scalarType.name;
+        const mappedType = this.config.scalars[scalarTypeName];
+        const mappedTypeName = mappedType?.type || "any";
+
+        defaultValue = [
+          `options.getDefaultScalarValue({`,
+          ` scalarTypeName: '${scalarTypeName}',`,
+          ` mappedTypeName: '${mappedTypeName}',`,
+          ` fieldName: '${name}',`,
+          ` __typename,`,
+          ` scalarValues: options.scalarValues`,
+          ` })`,
+        ].join("");
       } else if (field.enumType) {
         defaultValue = `"${field.enumType.getValues()[0].value}"`;
       }

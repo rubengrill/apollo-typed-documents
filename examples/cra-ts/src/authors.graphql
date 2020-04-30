@@ -1,6 +1,7 @@
 query authors {
   authors {
     id
+    createdAt
     name
     description
     books {

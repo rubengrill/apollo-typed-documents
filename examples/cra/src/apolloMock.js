@@ -14,7 +14,7 @@ operations.authors.variables = (values = {}, options = {}) => {
   return {
 
   };
-}
+};
 operations.authors.data = (values = {}, options = {}) => {
   const __typename = '';
   values = (({ authors = null }) => ({ authors }))(values);
@@ -22,19 +22,20 @@ operations.authors.data = (values = {}, options = {}) => {
   return {
     authors: (values.authors || []).map(item => ((values = {}, options = {}) => {
       const __typename = 'Author';
-      values = (({ id = null, name = null, description = null, books = null }) => ({ id, name, description, books }))(values);
+      values = (({ id = null, createdAt = null, name = null, description = null, books = null }) => ({ id, createdAt, name, description, books }))(values);
       values.__typename = __typename;
       return {
-        id: (values.id === null || values.id === undefined) ? [__typename, 'id'].filter(v => v).join('-') : values.id,
-        name: (values.name === null || values.name === undefined) ? [__typename, 'name'].filter(v => v).join('-') : values.name,
+        id: (values.id === null || values.id === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'id', __typename, scalarValues: options.scalarValues }) : values.id,
+        createdAt: (values.createdAt === null || values.createdAt === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'Date', mappedTypeName: 'string', fieldName: 'createdAt', __typename, scalarValues: options.scalarValues }) : values.createdAt,
+        name: (values.name === null || values.name === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'String', mappedTypeName: 'string', fieldName: 'name', __typename, scalarValues: options.scalarValues }) : values.name,
         description: values.description,
         books: (values.books || []).map(item => ((values = {}, options = {}) => {
           const __typename = 'Book';
           values = (({ id = null, title = null }) => ({ id, title }))(values);
           values.__typename = __typename;
           return {
-            id: (values.id === null || values.id === undefined) ? [__typename, 'id'].filter(v => v).join('-') : values.id,
-            title: (values.title === null || values.title === undefined) ? [__typename, 'title'].filter(v => v).join('-') : values.title,
+            id: (values.id === null || values.id === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'id', __typename, scalarValues: options.scalarValues }) : values.id,
+            title: (values.title === null || values.title === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'String', mappedTypeName: 'string', fieldName: 'title', __typename, scalarValues: options.scalarValues }) : values.title,
             ...(options.addTypename ? { __typename } : {})
           };
         })(item, options)),
@@ -42,7 +43,7 @@ operations.authors.data = (values = {}, options = {}) => {
       };
     })(item, options))
   };
-}
+};
 
 operations.createAuthor = {};
 operations.createAuthor.variables = (values = {}, options = {}) => {
@@ -52,7 +53,7 @@ operations.createAuthor.variables = (values = {}, options = {}) => {
   return {
     input: (AuthorInput)(values.input || undefined, options)
   };
-}
+};
 operations.createAuthor.data = (values = {}, options = {}) => {
   const __typename = '';
   values = (({ createAuthor = null }) => ({ createAuthor }))(values);
@@ -60,19 +61,20 @@ operations.createAuthor.data = (values = {}, options = {}) => {
   return {
     createAuthor: ((values = {}, options = {}) => {
       const __typename = 'Author';
-      values = (({ id = null, name = null, description = null, books = null }) => ({ id, name, description, books }))(values);
+      values = (({ id = null, createdAt = null, name = null, description = null, books = null }) => ({ id, createdAt, name, description, books }))(values);
       values.__typename = __typename;
       return {
-        id: (values.id === null || values.id === undefined) ? [__typename, 'id'].filter(v => v).join('-') : values.id,
-        name: (values.name === null || values.name === undefined) ? [__typename, 'name'].filter(v => v).join('-') : values.name,
+        id: (values.id === null || values.id === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'id', __typename, scalarValues: options.scalarValues }) : values.id,
+        createdAt: (values.createdAt === null || values.createdAt === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'Date', mappedTypeName: 'string', fieldName: 'createdAt', __typename, scalarValues: options.scalarValues }) : values.createdAt,
+        name: (values.name === null || values.name === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'String', mappedTypeName: 'string', fieldName: 'name', __typename, scalarValues: options.scalarValues }) : values.name,
         description: values.description,
         books: (values.books || []).map(item => ((values = {}, options = {}) => {
           const __typename = 'Book';
           values = (({ id = null, title = null }) => ({ id, title }))(values);
           values.__typename = __typename;
           return {
-            id: (values.id === null || values.id === undefined) ? [__typename, 'id'].filter(v => v).join('-') : values.id,
-            title: (values.title === null || values.title === undefined) ? [__typename, 'title'].filter(v => v).join('-') : values.title,
+            id: (values.id === null || values.id === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'id', __typename, scalarValues: options.scalarValues }) : values.id,
+            title: (values.title === null || values.title === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'String', mappedTypeName: 'string', fieldName: 'title', __typename, scalarValues: options.scalarValues }) : values.title,
             ...(options.addTypename ? { __typename } : {})
           };
         })(item, options)),
@@ -80,24 +82,24 @@ operations.createAuthor.data = (values = {}, options = {}) => {
       };
     })(values.createAuthor || undefined, options)
   };
-}
+};
 
 const BookInput = (values = {}, options = {}) => {
   const __typename = 'BookInput';
   values = (({ title = undefined }) => ({ title }))(values);
   values.__typename = __typename;
   return {
-    title: (values.title === null || values.title === undefined) ? [__typename, 'title'].filter(v => v).join('-') : values.title
+    title: (values.title === null || values.title === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'String', mappedTypeName: 'string', fieldName: 'title', __typename, scalarValues: options.scalarValues }) : values.title
   };
-}
+};
 
 const AuthorInput = (values = {}, options = {}) => {
   const __typename = 'AuthorInput';
   values = (({ name = undefined, description = undefined, books = undefined }) => ({ name, description, books }))(values);
   values.__typename = __typename;
   return {
-    name: (values.name === null || values.name === undefined) ? [__typename, 'name'].filter(v => v).join('-') : values.name,
+    name: (values.name === null || values.name === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'String', mappedTypeName: 'string', fieldName: 'name', __typename, scalarValues: options.scalarValues }) : values.name,
     description: values.description,
     books: (values.books || []).map(item => (BookInput)(item, options))
   };
-}
+};

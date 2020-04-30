@@ -1,5 +1,8 @@
+scalar Date
+
 type Author {
   id: ID!
+  createdAt: Date!
   name: String!
   description: String
   books: [Book!]!

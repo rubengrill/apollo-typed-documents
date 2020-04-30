@@ -1,6 +1,7 @@
 mutation createAuthor($input: AuthorInput!) {
   createAuthor(input: $input) {
     id
+    createdAt
     name
     description
     books {
