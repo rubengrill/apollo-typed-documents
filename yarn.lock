@@ -601,7 +601,7 @@
     auto-bind "~4.0.0"
     tslib "~1.11.1"
 
-"@graphql-codegen/visitor-plugin-common@1.13.3":
+"@graphql-codegen/visitor-plugin-common@1.13.3", "@graphql-codegen/visitor-plugin-common@^1.13.3":
   version "1.13.3"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/visitor-plugin-common/-/visitor-plugin-common-1.13.3.tgz#0bcba2ad47a2f2e9e6b1c41260e4461e3ad8b889"
   integrity sha512-+NBJva/jW22t6FLWlnSWXWk13tPZMLf9BHuM/iXxwF830ANvpRfd3s6sE8AGaTGM1Y8ciy9LCd3sDEcwU4shoQ==

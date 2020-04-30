@@ -28,9 +28,12 @@
     "generate": "yarn run build && (cd examples/cra && yarn run generate) && (cd examples/cra-ts && yarn run generate) && (cd examples/docs && yarn run generate)",
     "docs": "yarn run generate && md-magic --path README.md"
   },
-  "peerDependencies": {
-    "graphql": "^14.6.0",
+  "dependencies": {
+    "@graphql-codegen/visitor-plugin-common": "^1.13.3",
     "pascal-case": "^3.1.1"
+  },
+  "peerDependencies": {
+    "graphql": "^14.6.0"
   },
   "devDependencies": {
     "@apollo/react-common": "^3.1.4",

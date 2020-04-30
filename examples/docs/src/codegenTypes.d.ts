@@ -9,11 +9,13 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  Date: string;
 };
 
 export type Author = {
    __typename?: 'Author';
   id: Scalars['ID'];
+  createdAt: Scalars['Date'];
   name: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   books: Array<Book>;
@@ -34,6 +36,7 @@ export type Book = {
 export type BookInput = {
   title: Scalars['String'];
 };
+
 
 export type Mutation = {
    __typename?: 'Mutation';
@@ -57,7 +60,7 @@ export type AuthorsQuery = (
   { __typename?: 'Query' }
   & { authors: Array<(
     { __typename?: 'Author' }
-    & Pick<Author, 'id' | 'name' | 'description'>
+    & Pick<Author, 'id' | 'createdAt' | 'name' | 'description'>
     & { books: Array<(
       { __typename?: 'Book' }
       & Pick<Book, 'id' | 'title'>
@@ -74,7 +77,7 @@ export type CreateAuthorMutation = (
   { __typename?: 'Mutation' }
   & { createAuthor: (
     { __typename?: 'Author' }
-    & Pick<Author, 'id' | 'name' | 'description'>
+    & Pick<Author, 'id' | 'createdAt' | 'name' | 'description'>
     & { books: Array<(
       { __typename?: 'Book' }
       & Pick<Book, 'id' | 'title'>

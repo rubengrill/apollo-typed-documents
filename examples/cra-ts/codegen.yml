@@ -1,5 +1,8 @@
 schema: ../docs/schema.graphql
 documents: src/**/*.graphql
+config:
+  scalars:
+    Date: string
 generates:
   ./src/codegenTypedDocuments.d.ts:
     plugins:
