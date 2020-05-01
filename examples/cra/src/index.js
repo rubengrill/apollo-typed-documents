@@ -1,4 +1,4 @@
-import { MockedProvider } from "@apollo/react-testing";
+import { MockedProvider } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import React from "react";
 import ReactDOM from "react-dom";
