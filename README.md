@@ -274,10 +274,17 @@ Works for any nested selections (data) and any nested inputs (variables).
 It will include `__typename` in data by default. This can be deactivated as an option:
 
 ```js
-apolloMock(documentNode, variables, data, { addTypename: false });
+apolloMock(documentNode, variables, result, { addTypename: false });
 ```
 
 When used together with `codegenTypedDocuments` the data and variables are type checked (type inference).
+
+To mock errors, you can provide `errors` in `result` (`GraphQLError`) or pass an `Error` instead of `result`:
+
+```js
+apolloMock(documentNode, variables, { errors: [new GraphQLError("Already exists")] });
+apolloMock(documentNode, variables, new Error("Network error"));
+```
 
 ### Install
 
