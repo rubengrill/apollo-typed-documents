@@ -9,16 +9,16 @@ import createAuthorMutation from "./createAuthor.graphql";
 
 test("adds author", async () => {
   const mocks = [
-    apolloMock(authorsQuery, {}, { authors: [] }),
+    apolloMock(authorsQuery, {}, { data: { authors: [] } }),
     apolloMock(
       createAuthorMutation,
       { input: { name: "Foo", books: [{ title: "Bar" }] } },
-      { createAuthor: { name: "Foo", books: [{ title: "Bar" }] } }
+      { data: { createAuthor: { name: "Foo", books: [{ title: "Bar" }] } } }
     ),
     apolloMock(
       authorsQuery,
       {},
-      { authors: [{ name: "Foo", books: [{ title: "Bar" }] }] }
+      { data: { authors: [{ name: "Foo", books: [{ title: "Bar" }] }] } }
     ),
   ];
 

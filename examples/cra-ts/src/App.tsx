@@ -6,12 +6,10 @@ import createAuthorMutation from "./createAuthor.graphql";
 
 const App = () => {
   const { data } = useQuery(authorsQuery);
-  const [createAuthor, { data: createAuthorData }] = useMutation(
-    createAuthorMutation,
-    {
-      refetchQueries: [{ query: authorsQuery }],
-    }
-  );
+  const [createAuthor, { error }] = useMutation(createAuthorMutation, {
+    refetchQueries: [{ query: authorsQuery }],
+    onError: () => {},
+  });
 
   return (
     <>
@@ -20,17 +18,16 @@ const App = () => {
           <li key={author.id}>{author.name}</li>
         ))}
       </ul>
-      {!createAuthorData && (
-        <button
-          onClick={() => {
-            createAuthor({
-              variables: { input: { name: "Foo", books: [{ title: "Bar" }] } },
-            });
-          }}
-        >
-          Add
-        </button>
-      )}
+      {error && <div style={{ color: "red" }}>{error.message}</div>}
+      <button
+        onClick={() => {
+          createAuthor({
+            variables: { input: { name: "Foo", books: [{ title: "Bar" }] } },
+          });
+        }}
+      >
+        Add
+      </button>
     </>
   );
 };

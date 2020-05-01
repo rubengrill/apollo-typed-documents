@@ -198,7 +198,7 @@ describe("codegenApolloMock", () => {
       });
 
       it("with empty array for authors", () => {
-        const result = apolloMock(document, {}, { authors: [] });
+        const result = apolloMock(document, {}, { data: { authors: [] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -216,7 +216,7 @@ describe("codegenApolloMock", () => {
       });
 
       it("with empty object as author", () => {
-        const result = apolloMock(document, {}, { authors: [{}] });
+        const result = apolloMock(document, {}, { data: { authors: [{}] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -242,7 +242,7 @@ describe("codegenApolloMock", () => {
         const result = apolloMock(
           document,
           {},
-          { authors: [{ notExisting: 1 }] }
+          { data: { authors: [{ notExisting: 1 }] } }
         );
 
         expect(result).toMatchInlineSnapshot(`
@@ -269,7 +269,7 @@ describe("codegenApolloMock", () => {
         const result = apolloMock(
           document,
           {},
-          { authors: [{ stringField: "foo" }] }
+          { data: { authors: [{ stringField: "foo" }] } }
         );
 
         expect(result).toMatchInlineSnapshot(`
@@ -431,7 +431,7 @@ describe("codegenApolloMock", () => {
       });
 
       it("with empty object as author", () => {
-        const result = apolloMock(document, {}, { authors: [{}] });
+        const result = apolloMock(document, {}, { data: { authors: [{}] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -464,37 +464,39 @@ describe("codegenApolloMock", () => {
           document,
           {},
           {
-            authors: [
-              {
-                idField: "Author-idField-custom",
-                stringField: "Author-stringField-custom",
-                stringFieldNonNull: "Author-stringFieldNonNull-custom",
-                intField: 2,
-                intFieldNonNull: 2,
-                posts: [
-                  {
-                    idField: "Post-idField-custom",
-                    author: {
+            data: {
+              authors: [
+                {
+                  idField: "Author-idField-custom",
+                  stringField: "Author-stringField-custom",
+                  stringFieldNonNull: "Author-stringFieldNonNull-custom",
+                  intField: 2,
+                  intFieldNonNull: 2,
+                  posts: [
+                    {
                       idField: "Post-idField-custom",
+                      author: {
+                        idField: "Post-idField-custom",
+                      },
+                      authorNonNull: {
+                        idField: "Author-idField-custom",
+                      },
                     },
-                    authorNonNull: {
-                      idField: "Author-idField-custom",
-                    },
-                  },
-                ],
-                postsNonNull: [
-                  {
-                    idField: "Post-idField-custom",
-                    author: {
+                  ],
+                  postsNonNull: [
+                    {
                       idField: "Post-idField-custom",
+                      author: {
+                        idField: "Post-idField-custom",
+                      },
+                      authorNonNull: {
+                        idField: "Author-idField-custom",
+                      },
                     },
-                    authorNonNull: {
-                      idField: "Author-idField-custom",
-                    },
-                  },
-                ],
-              },
-            ],
+                  ],
+                },
+              ],
+            },
           }
         );
 
@@ -695,7 +697,7 @@ describe("codegenApolloMock", () => {
       });
 
       it("should pick first type that implements the interface by default", () => {
-        const result = apolloMock(document, {}, { objects: [{}] });
+        const result = apolloMock(document, {}, { data: { objects: [{}] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -719,7 +721,7 @@ describe("codegenApolloMock", () => {
 
       it("should allow to override type", () => {
         const obj = { __typename: "Post" };
-        const result = apolloMock(document, {}, { objects: [obj] });
+        const result = apolloMock(document, {}, { data: { objects: [obj] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -743,7 +745,7 @@ describe("codegenApolloMock", () => {
 
       it("should ignore invalid type", () => {
         const obj = { __typename: "Foo" };
-        const result = apolloMock(document, {}, { objects: [obj] });
+        const result = apolloMock(document, {}, { data: { objects: [obj] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -870,7 +872,7 @@ describe("codegenApolloMock", () => {
       });
 
       it("should pick first type of the union type by default", () => {
-        const result = apolloMock(document, {}, { search: [{}] });
+        const result = apolloMock(document, {}, { data: { search: [{}] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -895,7 +897,7 @@ describe("codegenApolloMock", () => {
 
       it("should allow to override type", () => {
         const obj = { __typename: "Post" };
-        const result = apolloMock(document, {}, { search: [obj] });
+        const result = apolloMock(document, {}, { data: { search: [obj] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -920,7 +922,7 @@ describe("codegenApolloMock", () => {
 
       it("should ignore invalid type", () => {
         const obj = { __typename: "Foo" };
-        const result = apolloMock(document, {}, { search: [obj] });
+        const result = apolloMock(document, {}, { data: { search: [obj] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -1063,7 +1065,7 @@ describe("codegenApolloMock", () => {
       });
 
       it("should pick first type of the union type by default", () => {
-        const result = apolloMock(document, {}, { search: [{}] });
+        const result = apolloMock(document, {}, { data: { search: [{}] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -1088,7 +1090,7 @@ describe("codegenApolloMock", () => {
 
       it("should allow to override type", () => {
         const obj = { __typename: "Post" };
-        const result = apolloMock(document, {}, { search: [obj] });
+        const result = apolloMock(document, {}, { data: { search: [obj] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -1113,7 +1115,7 @@ describe("codegenApolloMock", () => {
 
       it("should ignore invalid type", () => {
         const obj = { __typename: "Foo" };
-        const result = apolloMock(document, {}, { search: [obj] });
+        const result = apolloMock(document, {}, { data: { search: [obj] } });
 
         expect(result).toMatchInlineSnapshot(`
           {
@@ -1236,7 +1238,7 @@ describe("codegenApolloMock", () => {
         const result = apolloMock(
           document,
           {},
-          { authors: [{ posts: [{}] }], objects: [{}], search: [{}] },
+          { data: { authors: [{ posts: [{}] }], objects: [{}], search: [{}] } },
           { addTypename: false }
         );
 

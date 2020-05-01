@@ -1,15 +1,18 @@
-import { OperationDefinitionNode } from "graphql";
+import { MockedResponse } from "@apollo/react-testing";
+import { FetchResult } from "apollo-link";
+import { GraphQLError, OperationDefinitionNode } from "graphql";
 
 import { OperationVariables, TypedDocumentNode } from "./types";
 
-export interface ApolloMock<TVariables extends OperationVariables, TData> {
+export interface TypedMockedResponse<
+  TVariables extends OperationVariables,
+  TData
+> extends MockedResponse {
   request: {
     query: TypedDocumentNode<TVariables, TData>;
     variables: TVariables;
   };
-  result: {
-    data: TData;
-  };
+  result?: FetchResult<TData>;
 }
 
 export interface ApolloMockOptions {
@@ -21,12 +24,20 @@ export type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
 };
 
-export type ApolloMockFn = <TVariables extends OperationVariables, TData>(
-  documentNode: TypedDocumentNode<TVariables, TData>,
-  variables?: RecursivePartial<TVariables>,
-  data?: RecursivePartial<TData>,
-  options?: ApolloMockOptions
-) => ApolloMock<TVariables, TData>;
+export type ApolloMockFn = {
+  <TVariables extends OperationVariables, TData>(
+    documentNode: TypedDocumentNode<TVariables, TData>,
+    variables?: RecursivePartial<TVariables>,
+    result?: FetchResult<RecursivePartial<TData>>,
+    options?: ApolloMockOptions
+  ): TypedMockedResponse<TVariables, TData>;
+  <TVariables extends OperationVariables, TData>(
+    documentNode: TypedDocumentNode<TVariables, TData>,
+    variables: RecursivePartial<TVariables>,
+    error: Error,
+    options?: ApolloMockOptions
+  ): TypedMockedResponse<TVariables, TData>;
+};
 
 const getDefaultScalarValue = ({
   scalarTypeName,
@@ -75,9 +86,9 @@ export default (operations: any): ApolloMockFn => <
 >(
   documentNode: TypedDocumentNode<TVariables, TData>,
   variables?: RecursivePartial<TVariables>,
-  data?: RecursivePartial<TData>,
-  { addTypename = true, scalarValues }: ApolloMockOptions = {}
-): ApolloMock<TVariables, TData> => {
+  resultOrError?: FetchResult<RecursivePartial<TData>> | Error,
+  options?: ApolloMockOptions
+): TypedMockedResponse<TVariables, TData> => {
   const definitionNode = documentNode.definitions[0];
   const operationNode = definitionNode as OperationDefinitionNode;
 
@@ -92,15 +103,45 @@ export default (operations: any): ApolloMockFn => <
     throw new Error(`Couldn't find operation "${operationName}"`);
   }
 
-  const options = { addTypename, scalarValues, getDefaultScalarValue };
+  let error: Error | undefined;
+  let errors: ReadonlyArray<GraphQLError> | undefined;
+  let data: RecursivePartial<TData> | null | undefined;
 
-  return {
+  if (resultOrError instanceof Error) {
+    error = resultOrError;
+  } else if (resultOrError) {
+    const result = resultOrError;
+    errors = result.errors;
+    data = result.data;
+  }
+
+  options = Object.assign(
+    { addTypename: true, getDefaultScalarValue },
+    options || {}
+  );
+
+  const response: TypedMockedResponse<TVariables, TData> = {
     request: {
       query: documentNode,
       variables: operation.variables(variables || undefined, options),
     },
-    result: {
-      data: operation.data(data || undefined, options),
-    },
   };
+
+  if (error) {
+    response.error = error;
+  } else if (errors) {
+    response.result = {};
+    response.result.errors = errors;
+
+    if (data === null) {
+      response.result.data = null;
+    } else if (data) {
+      response.result.data = operation.data(data, options);
+    }
+  } else {
+    response.result = {};
+    response.result.data = operation.data(data || undefined, options);
+  }
+
+  return response;
 };
