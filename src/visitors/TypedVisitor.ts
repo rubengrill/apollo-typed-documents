@@ -234,9 +234,10 @@ export default class TypedVisitor {
   }
 
   getOutputFieldForField(node: FieldNode, parentField: TypedField) {
-    const name = node.name.value;
+    const fieldName = node.name.value;
+    const name = node.alias?.value || fieldName;
 
-    if (name === "__typename") {
+    if (fieldName === "__typename") {
       return createTypedField({ name, isTypename: true });
     }
 
@@ -247,11 +248,11 @@ export default class TypedVisitor {
     }
 
     const fields = parentType.getFields();
-    const field = fields[name];
+    const field = fields[fieldName];
 
     if (!field) {
       throw new Error(
-        `Field "${name}" does not exist on type "${parentType.name}"`
+        `Field "${fieldName}" does not exist on type "${parentType.name}"`
       );
     }
 

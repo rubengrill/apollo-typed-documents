@@ -1276,6 +1276,87 @@ describe("codegenApolloMock", () => {
         `);
       });
     });
+
+    describe("with alias", () => {
+      let document: DocumentNode;
+      let output: string;
+      let apolloMock: ApolloMockFn;
+
+      beforeEach(async () => {
+        document = parse(`
+          query authors {
+            allAuthors: authors {
+              idField
+            }
+          }
+        `);
+
+        const documents = [{ document, location: "authors.gql" }];
+        const config = getConfig({ documents });
+
+        output = await codegen(config);
+        apolloMock = getApolloMock(output);
+      });
+
+      it("should have matching operation", () => {
+        expect(output).toMatchInlineSnapshot(`
+          "import { createApolloMock } from 'apollo-typed-documents';
+
+          const operations = {};
+
+          export default createApolloMock(operations);
+
+          operations.authors = {};
+          operations.authors.variables = (values = {}, options = {}) => {
+            const __typename = '';
+            values = (({  }) => ({  }))(values);
+            values.__typename = __typename;
+            return {
+
+            };
+          };
+          operations.authors.data = (values = {}, options = {}) => {
+            const __typename = '';
+            values = (({ allAuthors = null }) => ({ allAuthors }))(values);
+            values.__typename = __typename;
+            return {
+              allAuthors: !values.allAuthors ? values.allAuthors : values.allAuthors.map(item => ((values = {}, options = {}) => {
+                const __typename = 'Author';
+                values = (({ idField = null }) => ({ idField }))(values);
+                values.__typename = __typename;
+                return {
+                  idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
+                  ...(options.addTypename ? { __typename } : {})
+                };
+              })(item, options))
+            };
+          };"
+        `);
+      });
+
+      it("should use alias for both input and output", () => {
+        const result = apolloMock(document, {}, { data: { allAuthors: [{}] } });
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "request": {
+              "query": "...",
+              "variables": {}
+            },
+            "result": {
+              "data": {
+                "allAuthors": [
+                  {
+                    "idField": "Author-idField",
+                    "__typename": "Author"
+                  }
+                ]
+              }
+            }
+          }
+        `);
+      });
+    });
   });
 
   describe("mutation", () => {
