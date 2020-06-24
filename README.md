@@ -52,6 +52,8 @@ generates:
 ```
 <!-- AUTO-GENERATED-CONTENT:END -->
 
+The `apollo-typed-documents` plugin also accepts the same `modulePathPrefix`, `relativeToCwd` and `prefix` config settings as [typescript-graphql-files-modules](https://graphql-code-generator.com/docs/plugins/typescript-graphql-files-modules).
+
 `tsconfig.json`:
 
 Add `node_modules/apollo-typed-documents/lib/reactHooks.d.ts` in `include` to override the typings for `@apollo/react-hooks`, so that types can be inferred from typed documents.
