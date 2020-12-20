@@ -5,9 +5,11 @@ declare module "@apollo/react-hooks" {
   } from "apollo-typed-documents";
   import { QueryResult } from "@apollo/react-common";
   import {
+    LazyQueryHookOptions,
     MutationHookOptions,
     MutationTuple,
     QueryHookOptions,
+    QueryTuple,
     SubscriptionHookOptions,
   } from "@apollo/react-hooks/lib/types";
 
@@ -21,6 +23,15 @@ declare module "@apollo/react-hooks" {
     query: TypedDocumentNode<TVariables, TData>,
     options?: TOptions
   ): QueryResult<TData, TVariables>;
+
+  export function useLazyQuery<
+    TData,
+    TVariables extends OperationVariables,
+    TOptions extends LazyQueryHookOptions<TData, TVariables>
+  >(
+    query: TypedDocumentNode<TVariables, TData>,
+    options?: TOptions
+  ): QueryTuple<TData, TVariables>;
 
   export function useMutation<
     TData,
