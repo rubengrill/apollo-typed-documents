@@ -54,7 +54,7 @@ generates:
 
 `tsconfig.json`:
 
-Add `node_modules/apollo-typed-documents/lib/reactHooks.d.ts` in `include` to override the typings for `@apollo/react-hooks`, so that types can be inferred from typed documents.
+Add `node_modules/apollo-typed-documents/lib/reactHooks.d.ts` in `include` to override the typings for hooks of `@apollo/client`, so that types can be inferred from typed documents.
 
 <!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/tsconfig.json) -->
 <!-- The below code snippet is automatically added from ./examples/docs/tsconfig.json -->
@@ -141,7 +141,7 @@ declare module "*/createAuthor.graphql" {
 <!-- AUTO-GENERATED-CONTENT:START (CODE:src=./examples/docs/src/AuthorList.js) -->
 <!-- The below code snippet is automatically added from ./examples/docs/src/AuthorList.js -->
 ```js
-import { useMutation, useQuery } from "@apollo/react-hooks";
+import { useMutation, useQuery } from "@apollo/client";
 import React from "react";
 
 import authorsQuery from "./authors.graphql";
@@ -218,7 +218,7 @@ module.exports = override(useBabelRc());
 }
 ```
 
-If you have a TypeScript app, you need to override the `@apollo/react-hooks` types in `tsconfig.json`:
+If you have a TypeScript app, you need to override the `@apollo/client` types for hooks in `tsconfig.json`:
 
 `tsconfig.json`
 
