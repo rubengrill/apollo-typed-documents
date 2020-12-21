@@ -30,7 +30,7 @@ export const plugin: PluginFunction<Config> = (schema, documents, config) => {
   output.push("export default createApolloMock(operations);");
 
   documentNodes.forEach((documentNode) => {
-    const typedVisitor = new TypedVisitor(schema);
+    const typedVisitor = new TypedVisitor(schema, documentNodes);
     const typedDocumentNode = visit(documentNode, typedVisitor);
 
     visit(typedDocumentNode, mockVisitor);
