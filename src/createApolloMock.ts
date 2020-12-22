@@ -1,5 +1,5 @@
-import { MockedResponse } from "@apollo/react-testing";
-import { FetchResult } from "apollo-link";
+import { FetchResult } from "@apollo/client";
+import { MockedResponse } from "@apollo/client/testing";
 import { GraphQLError, OperationDefinitionNode } from "graphql";
 
 import { OperationVariables, TypedDocumentNode } from "./types";

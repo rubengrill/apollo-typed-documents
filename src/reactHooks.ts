@@ -1,19 +1,19 @@
-declare module "@apollo/react-hooks" {
+declare module "@apollo/client" {
   import {
     OperationVariables,
     TypedDocumentNode,
   } from "apollo-typed-documents";
-  import { QueryResult } from "@apollo/react-common";
   import {
+    QueryResult,
     LazyQueryHookOptions,
     MutationHookOptions,
     MutationTuple,
     QueryHookOptions,
     QueryTuple,
     SubscriptionHookOptions,
-  } from "@apollo/react-hooks/lib/types";
+  } from "@apollo/client/index";
 
-  export * from "@apollo/react-hooks/lib/index";
+  export * from "@apollo/client/index";
 
   export function useQuery<
     TData,
@@ -53,6 +53,6 @@ declare module "@apollo/react-hooks" {
     variables: TVariables | undefined;
     loading: boolean;
     data?: TData | undefined;
-    error?: import("apollo-client").ApolloError | undefined;
+    error?: import("@apollo/client/index").ApolloError | undefined;
   };
 }
