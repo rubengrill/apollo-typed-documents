@@ -1,5 +1,3 @@
-import path from "path";
-
 import {
   PluginFunction,
   PluginValidateFn,
@@ -8,9 +6,44 @@ import { visit } from "graphql";
 
 import TypedDocumentVisitor from "./visitors/TypedDocumentVisitor";
 
-export type Config = { typesModule: string };
+export type UserConfig = {
+  typesModule: string;
 
-export const plugin: PluginFunction<Config> = (_schema, documents, config) => {
+  /**
+   * @default ""
+   * @description Allows specifying a module definition path prefix to provide
+   * distinction between generated types.
+   */
+  modulePathPrefix?: string;
+
+  /**
+   * @default false
+   * @description By default, only the filename is being used to generate TS
+   * module declarations. Setting this to `true` will generate it with a full
+   * path based on the CWD.
+   */
+  relativeToCwd?: boolean;
+
+  /**
+   * @default *\/
+   * @description By default, a wildcard is being added as prefix, you can
+   * change that to a custom prefix.
+   */
+  prefix?: string;
+};
+
+export const plugin: PluginFunction<UserConfig> = (
+  _schema,
+  documents,
+  { typesModule, modulePathPrefix = "", relativeToCwd, prefix = "*/" }
+) => {
+  const config = {
+    typesModule,
+    modulePathPrefix,
+    useRelative: relativeToCwd === true,
+    prefix,
+  };
+
   const output: string[] = [];
 
   documents.forEach((document) => {
@@ -21,8 +54,7 @@ export const plugin: PluginFunction<Config> = (_schema, documents, config) => {
       throw new Error("Missing document node");
     }
 
-    const basename = path.basename(document.location);
-    const visitor = new TypedDocumentVisitor(output, basename, config);
+    const visitor = new TypedDocumentVisitor(output, document.location, config);
 
     visit(document.document, visitor);
   });
@@ -30,7 +62,7 @@ export const plugin: PluginFunction<Config> = (_schema, documents, config) => {
   return output.join("\n\n");
 };
 
-export const validate: PluginValidateFn<Config> = (
+export const validate: PluginValidateFn<UserConfig> = (
   _schema,
   _documents,
   config

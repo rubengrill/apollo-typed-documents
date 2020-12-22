@@ -24,15 +24,23 @@ const schema = buildSchema(`
 `);
 
 const getConfig = (
-  options: Partial<Types.GenerateOptions> = {}
+  generateOptions: Partial<Types.GenerateOptions> = {},
+  pluginOptions: Partial<codegenTypedDocuments.UserConfig> = {}
 ): Types.GenerateOptions => ({
   filename: "not-relevant",
   schema: parse(printSchema(schema)),
-  plugins: [{ codegenTypedDocuments: { typesModule: "@codegen-types" } }],
+  plugins: [
+    {
+      codegenTypedDocuments: {
+        typesModule: "@codegen-types",
+        ...pluginOptions,
+      },
+    },
+  ],
   pluginMap: { codegenTypedDocuments },
   config: {},
   documents: [],
-  ...options,
+  ...generateOptions,
 });
 
 describe("codegenTypedDocuments", () => {
@@ -137,5 +145,109 @@ describe("codegenTypedDocuments", () => {
         export const alsoCreateAuthor: TypedDocumentNode<AlsoCreateAuthorMutationVariables, AlsoCreateAuthorMutation>;
       }"
     `);
+  });
+
+  describe("module path customization", () => {
+    const queryDocument = parse(`
+      query authors {
+        authors {
+          idField
+        }
+      }
+    `);
+
+    const mutationDocument = parse(`
+      mutation createAuthor {
+        createAuthor {
+          idField
+        }
+      }
+    `);
+
+    const documents = [
+      { document: queryDocument, location: "literary/types/authors.gql" },
+      { document: mutationDocument, location: "mutations/createAuthor.gql" },
+    ];
+
+    it("wildcards the basename by default", async () => {
+      const config = getConfig({ documents });
+      const output = await codegen(config);
+
+      expect(output).toMatchInlineSnapshot(`
+        "declare module \\"*/authors.gql\\" {
+          import { TypedDocumentNode } from \\"apollo-typed-documents\\";
+          import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
+          export const authors: TypedDocumentNode<AuthorsQueryVariables, AuthorsQuery>;
+          export default authors;
+        }
+
+        declare module \\"*/createAuthor.gql\\" {
+          import { TypedDocumentNode } from \\"apollo-typed-documents\\";
+          import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
+          export const createAuthor: TypedDocumentNode<CreateAuthorMutationVariables, CreateAuthorMutation>;
+          export default createAuthor;
+        }"
+      `);
+    });
+
+    it("respects the relativeToCwd setting", async () => {
+      const config = getConfig({ documents }, { relativeToCwd: true });
+      const output = await codegen(config);
+
+      expect(output).toEqual(
+        expect.stringContaining(`declare module "*/literary/types/authors.gql"`)
+      );
+      expect(output).toEqual(
+        expect.stringContaining(`declare module "*/mutations/createAuthor.gql"`)
+      );
+    });
+
+    it("respects the prefix setting", async () => {
+      const config = getConfig({ documents }, { prefix: "gql/" });
+      const output = await codegen(config);
+
+      expect(output).toEqual(
+        expect.stringContaining(`declare module "gql/authors.gql"`)
+      );
+      expect(output).toEqual(
+        expect.stringContaining(`declare module "gql/createAuthor.gql"`)
+      );
+    });
+
+    it("respects the modulePathPrefix setting", async () => {
+      const config = getConfig({ documents }, { modulePathPrefix: "stuff/" });
+      const output = await codegen(config);
+
+      expect(output).toEqual(
+        expect.stringContaining(`declare module "*/stuff/authors.gql"`)
+      );
+      expect(output).toEqual(
+        expect.stringContaining(`declare module "*/stuff/createAuthor.gql"`)
+      );
+    });
+
+    it("allows combining path settings", async () => {
+      const config = getConfig(
+        { documents },
+        {
+          prefix: "",
+          modulePathPrefix: "defs/",
+          relativeToCwd: true,
+        }
+      );
+
+      const output = await codegen(config);
+
+      expect(output).toEqual(
+        expect.stringContaining(
+          `declare module "defs/literary/types/authors.gql"`
+        )
+      );
+      expect(output).toEqual(
+        expect.stringContaining(
+          `declare module "defs/mutations/createAuthor.gql"`
+        )
+      );
+    });
   });
 });
