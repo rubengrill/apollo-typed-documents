@@ -24,15 +24,23 @@ const schema = buildSchema(`
 `);
 
 const getConfig = (
-  options: Partial<Types.GenerateOptions> = {}
+  generateOptions: Partial<Types.GenerateOptions> = {},
+  pluginOptions: Partial<codegenTypedDocuments.UserConfig> = {}
 ): Types.GenerateOptions => ({
   filename: "not-relevant",
   schema: parse(printSchema(schema)),
-  plugins: [{ codegenTypedDocuments: { typesModule: "@codegen-types" } }],
+  plugins: [
+    {
+      codegenTypedDocuments: {
+        typesModule: "@codegen-types",
+        ...pluginOptions,
+      },
+    },
+  ],
   pluginMap: { codegenTypedDocuments },
   config: {},
   documents: [],
-  ...options,
+  ...generateOptions,
 });
 
 describe("codegenTypedDocuments", () => {
@@ -161,22 +169,8 @@ describe("codegenTypedDocuments", () => {
       { document: mutationDocument, location: "mutations/createAuthor.gql" },
     ];
 
-    const getPathConfig = (pluginConfig: Record<string, unknown>) => {
-      return getConfig({
-        documents,
-        plugins: [
-          {
-            codegenTypedDocuments: {
-              typesModule: "@codegen-types",
-              ...pluginConfig,
-            },
-          },
-        ],
-      });
-    };
-
     it("wildcards the basename by default", async () => {
-      const config = getPathConfig({});
+      const config = getConfig({ documents });
       const output = await codegen(config);
 
       expect(output).toMatchInlineSnapshot(`
@@ -197,7 +191,7 @@ describe("codegenTypedDocuments", () => {
     });
 
     it("respects the relativeToCwd setting", async () => {
-      const config = getPathConfig({ relativeToCwd: true });
+      const config = getConfig({ documents }, { relativeToCwd: true });
       const output = await codegen(config);
 
       expect(output).toEqual(
@@ -209,7 +203,7 @@ describe("codegenTypedDocuments", () => {
     });
 
     it("respects the prefix setting", async () => {
-      const config = getPathConfig({ prefix: "gql/" });
+      const config = getConfig({ documents }, { prefix: "gql/" });
       const output = await codegen(config);
 
       expect(output).toEqual(
@@ -220,8 +214,8 @@ describe("codegenTypedDocuments", () => {
       );
     });
 
-    it("even respects the superfluous modulePathPrefix setting", async () => {
-      const config = getPathConfig({ modulePathPrefix: "stuff/" });
+    it("respects the modulePathPrefix setting", async () => {
+      const config = getConfig({ documents }, { modulePathPrefix: "stuff/" });
       const output = await codegen(config);
 
       expect(output).toEqual(
@@ -233,11 +227,14 @@ describe("codegenTypedDocuments", () => {
     });
 
     it("allows combining path settings", async () => {
-      const config = getPathConfig({
-        prefix: "",
-        modulePathPrefix: "defs/",
-        relativeToCwd: true,
-      });
+      const config = getConfig(
+        { documents },
+        {
+          prefix: "",
+          modulePathPrefix: "defs/",
+          relativeToCwd: true,
+        }
+      );
 
       const output = await codegen(config);
 
