@@ -670,7 +670,7 @@ describe("codegenApolloMock", () => {
       };
 
       it("should have matching operation", async () => {
-        const [config, document] = getTestConfig();
+        const [config] = getTestConfig();
         const output = await codegen(config);
 
         expect(output).toMatchInlineSnapshot(`
