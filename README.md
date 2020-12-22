@@ -43,7 +43,9 @@ generates:
       typesModule: "@codegen-types"
   ./src/codegenTypes.d.ts:
     plugins:
-      - add: 'declare module "@codegen-types" {'
+      - add:
+          placement: prepend
+          content: 'declare module "@codegen-types" {'
       - add:
           placement: append
           content: "}"
