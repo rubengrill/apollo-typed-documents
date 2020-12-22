@@ -70,10 +70,20 @@ export default class TypedVisitor {
   readonly inputObjectTypeFields: { [name: string]: TypedField[] } = {};
   readonly fragmentFields: { [name: string]: TypedField } = {};
 
-  constructor(readonly schema: GraphQLSchema) {}
+  constructor(
+    readonly schema: GraphQLSchema,
+    readonly documentNodes: DocumentNode[]
+  ) {}
 
   Document = (node: DocumentNode) => {
-    const fragmentNodes = node.definitions.filter(isFragmentDefinitionNode);
+    if (!this.documentNodes.includes(node)) {
+      throw new Error("node missing in documentNodes");
+    }
+
+    const fragmentNodes = this.documentNodes
+      .map((documentNode) => documentNode.definitions)
+      .reduce((acc, val) => acc.concat(val), []) // flatten
+      .filter(isFragmentDefinitionNode);
 
     fragmentNodes.forEach((fragmentNode) => {
       const name = fragmentNode.name.value;

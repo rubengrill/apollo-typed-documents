@@ -6,7 +6,6 @@ import { DocumentNode, buildSchema, parse, printSchema } from "graphql";
 import tmp from "tmp";
 
 import * as codegenApolloMock from "../codegenApolloMock";
-import { ApolloMockFn } from "../createApolloMock";
 
 expect.addSnapshotSerializer({
   test(value) {
@@ -103,6 +102,8 @@ const getApolloMock = (output: string) => {
   return module.default;
 };
 
+type GetTestConfig = () => [Types.GenerateOptions, DocumentNode];
+
 describe("codegenApolloMock", () => {
   describe("general", () => {
     describe("with no documents", () => {
@@ -123,12 +124,8 @@ describe("codegenApolloMock", () => {
 
   describe("query", () => {
     describe("with minimal document", () => {
-      let document: DocumentNode;
-      let output: string;
-      let apolloMock: ApolloMockFn;
-
-      beforeEach(async () => {
-        document = parse(`
+      const getTestConfig: GetTestConfig = () => {
+        const document = parse(`
           query authors {
             authors {
               idField
@@ -137,13 +134,14 @@ describe("codegenApolloMock", () => {
         `);
 
         const documents = [{ document, location: "authors.gql" }];
-        const config = getConfig({ documents });
 
-        output = await codegen(config);
-        apolloMock = getApolloMock(output);
-      });
+        return [getConfig({ documents }), document];
+      };
 
-      it("should have matching operation", () => {
+      it("should have matching operation", async () => {
+        const [config] = getTestConfig();
+        const output = await codegen(config);
+
         expect(output).toMatchInlineSnapshot(`
           "import { createApolloMock } from 'apollo-typed-documents';
 
@@ -179,7 +177,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should allow document only", () => {
+      it("should allow document only", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(document);
 
         expect(result).toMatchInlineSnapshot(`
@@ -197,7 +198,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("with empty array for authors", () => {
+      it("with empty array for authors", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(document, {}, { data: { authors: [] } });
 
         expect(result).toMatchInlineSnapshot(`
@@ -215,7 +219,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("with empty object as author", () => {
+      it("with empty object as author", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(document, {}, { data: { authors: [{}] } });
 
         expect(result).toMatchInlineSnapshot(`
@@ -238,7 +245,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should ignore invalid field", () => {
+      it("should ignore invalid field", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(
           document,
           {},
@@ -265,7 +275,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should ignore field that is not selected", () => {
+      it("should ignore field that is not selected", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(
           document,
           {},
@@ -294,12 +307,8 @@ describe("codegenApolloMock", () => {
     });
 
     describe("with extensive document", () => {
-      let document: DocumentNode;
-      let output: string;
-      let apolloMock: ApolloMockFn;
-
-      beforeEach(async () => {
-        document = parse(`
+      const getTestConfig: GetTestConfig = () => {
+        const document = parse(`
           query authors {
             authors {
               idField
@@ -330,13 +339,14 @@ describe("codegenApolloMock", () => {
         `);
 
         const documents = [{ document, location: "authors.gql" }];
-        const config = getConfig({ documents });
 
-        output = await codegen(config);
-        apolloMock = getApolloMock(output);
-      });
+        return [getConfig({ documents }), document];
+      };
 
-      it("should have matching operation", () => {
+      it("should have matching operation", async () => {
+        const [config] = getTestConfig();
+        const output = await codegen(config);
+
         expect(output).toMatchInlineSnapshot(`
           "import { createApolloMock } from 'apollo-typed-documents';
 
@@ -430,7 +440,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("with empty object as author", () => {
+      it("with empty object as author", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(document, {}, { data: { authors: [{}] } });
 
         expect(result).toMatchInlineSnapshot(`
@@ -459,7 +472,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("with custom data", () => {
+      it("with custom data", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(
           document,
           {},
@@ -639,12 +655,8 @@ describe("codegenApolloMock", () => {
     });
 
     describe("with interface", () => {
-      let document: DocumentNode;
-      let output: string;
-      let apolloMock: ApolloMockFn;
-
-      beforeEach(async () => {
-        document = parse(`
+      const getTestConfig: GetTestConfig = () => {
+        const document = parse(`
           query objects {
             objects {
               idField
@@ -653,13 +665,14 @@ describe("codegenApolloMock", () => {
         `);
 
         const documents = [{ document, location: "objects.gql" }];
-        const config = getConfig({ documents });
 
-        output = await codegen(config);
-        apolloMock = getApolloMock(output);
-      });
+        return [getConfig({ documents }), document];
+      };
 
-      it("should have matching operation", () => {
+      it("should have matching operation", async () => {
+        const [config] = getTestConfig();
+        const output = await codegen(config);
+
         expect(output).toMatchInlineSnapshot(`
           "import { createApolloMock } from 'apollo-typed-documents';
 
@@ -696,7 +709,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should pick first type that implements the interface by default", () => {
+      it("should pick first type that implements the interface by default", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(document, {}, { data: { objects: [{}] } });
 
         expect(result).toMatchInlineSnapshot(`
@@ -719,7 +735,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should allow to override type", () => {
+      it("should allow to override type", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const obj = { __typename: "Post" };
         const result = apolloMock(document, {}, { data: { objects: [obj] } });
 
@@ -743,7 +762,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should ignore invalid type", () => {
+      it("should ignore invalid type", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const obj = { __typename: "Foo" };
         const result = apolloMock(document, {}, { data: { objects: [obj] } });
 
@@ -769,12 +791,8 @@ describe("codegenApolloMock", () => {
     });
 
     describe("with inline fragments", () => {
-      let document: DocumentNode;
-      let output: string;
-      let apolloMock: ApolloMockFn;
-
-      beforeEach(async () => {
-        document = parse(`
+      const getTestConfig: GetTestConfig = () => {
+        const document = parse(`
           query search {
             search {
               ... on HasIdField {
@@ -795,13 +813,14 @@ describe("codegenApolloMock", () => {
         `);
 
         const documents = [{ document, location: "search.gql" }];
-        const config = getConfig({ documents });
 
-        output = await codegen(config);
-        apolloMock = getApolloMock(output);
-      });
+        return [getConfig({ documents }), document];
+      };
 
-      it("should have matching operation", () => {
+      it("should have matching operation", async () => {
+        const [config] = getTestConfig();
+        const output = await codegen(config);
+
         expect(output).toMatchInlineSnapshot(`
           "import { createApolloMock } from 'apollo-typed-documents';
 
@@ -871,7 +890,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should pick first type of the union type by default", () => {
+      it("should pick first type of the union type by default", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(document, {}, { data: { search: [{}] } });
 
         expect(result).toMatchInlineSnapshot(`
@@ -895,7 +917,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should allow to override type", () => {
+      it("should allow to override type", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const obj = { __typename: "Post" };
         const result = apolloMock(document, {}, { data: { search: [obj] } });
 
@@ -920,7 +945,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should ignore invalid type", () => {
+      it("should ignore invalid type", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const obj = { __typename: "Foo" };
         const result = apolloMock(document, {}, { data: { search: [obj] } });
 
@@ -947,205 +975,231 @@ describe("codegenApolloMock", () => {
     });
 
     describe("with fragments", () => {
-      let document: DocumentNode;
-      let output: string;
-      let apolloMock: ApolloMockFn;
-
-      beforeEach(async () => {
-        document = parse(`
-          query search {
-            search {
-              ...searchFragment
-            }
+      const queryContent = `
+        query search {
+          search {
+            ...searchFragment
           }
+        }
+      `;
 
-          fragment searchFragment on SearchResult {
-            ...hasIdFieldFragment
-            ...authorFragment
-            ...postFragment
-          }
+      const fragmentsContent = `
+        fragment searchFragment on SearchResult {
+          ...hasIdFieldFragment
+          ...authorFragment
+          ...postFragment
+        }
 
-          fragment hasIdFieldFragment on HasIdField {
+        fragment hasIdFieldFragment on HasIdField {
+          idField
+        }
+
+        fragment authorFragment on Author {
+          posts {
             idField
           }
+        }
 
-          fragment authorFragment on Author {
-            posts {
-              idField
-            }
+        fragment postFragment on Post {
+          author {
+            idField
           }
+        }
+      `;
 
-          fragment postFragment on Post {
-            author {
-              idField
-            }
-          }
+      const getTestConfigSameFile: GetTestConfig = () => {
+        const document = parse(`
+          ${queryContent}
+          ${fragmentsContent}
         `);
 
         const documents = [{ document, location: "search.gql" }];
-        const config = getConfig({ documents });
 
-        output = await codegen(config);
-        apolloMock = getApolloMock(output);
-      });
+        return [getConfig({ documents }), document];
+      };
 
-      it("should have matching operation", () => {
-        expect(output).toMatchInlineSnapshot(`
-          "import { createApolloMock } from 'apollo-typed-documents';
+      const getTestConfigDifferentFiles: GetTestConfig = () => {
+        const queryDocument = parse(queryContent);
+        const fragmentsDocument = parse(fragmentsContent);
 
-          const operations = {};
+        const documents = [
+          { document: queryDocument, location: "query.gql" },
+          { document: fragmentsDocument, location: "fragments.gql" },
+        ];
 
-          export default createApolloMock(operations);
+        return [getConfig({ documents }), queryDocument];
+      };
 
-          operations.search = {};
-          operations.search.variables = (values = {}, options = {}) => {
-            const __typename = '';
-            values = (({  }) => ({  }))(values);
-            values.__typename = __typename;
-            return {
+      describe.each([
+        ["in same file", getTestConfigSameFile],
+        ["in different files", getTestConfigDifferentFiles],
+      ])("%s", (testName, getTestConfig) => {
+        it("should have matching operation", async () => {
+          const [config] = getTestConfig();
+          const output = await codegen(config);
 
+          expect(output).toMatchInlineSnapshot(`
+            "import { createApolloMock } from 'apollo-typed-documents';
+
+            const operations = {};
+
+            export default createApolloMock(operations);
+
+            operations.search = {};
+            operations.search.variables = (values = {}, options = {}) => {
+              const __typename = '';
+              values = (({  }) => ({  }))(values);
+              values.__typename = __typename;
+              return {
+
+              };
             };
-          };
-          operations.search.data = (values = {}, options = {}) => {
-            const __typename = '';
-            values = (({ search = null }) => ({ search }))(values);
-            values.__typename = __typename;
-            return {
-              search: !values.search ? values.search : values.search.map(item => ((values = {}, options = {}) => {
-                const typenames = ['Author', 'Post'];
-                const __typename = typenames.find(typename => typename === values.__typename) || typenames[0];
-                values = (({  }) => ({  }))(values);
-                values.__typename = __typename;
-                return {
-                  ...(['Author', 'Post'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
-                    values = (({  }) => ({  }))(values);
-                    return {
-                      ...(['Author', 'Post'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
-                        values = (({ idField = null }) => ({ idField }))(values);
-                        return {
-                          idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField
-                        };
-                      })(values, options) : {}),
-                      ...(['Author'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
-                        values = (({ posts = null }) => ({ posts }))(values);
-                        return {
-                          posts: !values.posts ? values.posts : values.posts.map(item => ((values = {}, options = {}) => {
-                            const __typename = 'Post';
-                            values = (({ idField = null }) => ({ idField }))(values);
-                            values.__typename = __typename;
-                            return {
-                              idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
-                              ...(options.addTypename ? { __typename } : {})
-                            };
-                          })(item, options))
-                        };
-                      })(values, options) : {}),
-                      ...(['Post'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
-                        values = (({ author = null }) => ({ author }))(values);
-                        return {
-                          author: !values.author ? values.author : ((values = {}, options = {}) => {
-                            const __typename = 'Author';
-                            values = (({ idField = null }) => ({ idField }))(values);
-                            values.__typename = __typename;
-                            return {
-                              idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
-                              ...(options.addTypename ? { __typename } : {})
-                            };
-                          })(values.author, options)
-                        };
-                      })(values, options) : {})
-                    };
-                  })(values, options) : {}),
-                  ...(options.addTypename ? { __typename } : {})
-                };
-              })(item, options))
-            };
-          };"
-        `);
-      });
+            operations.search.data = (values = {}, options = {}) => {
+              const __typename = '';
+              values = (({ search = null }) => ({ search }))(values);
+              values.__typename = __typename;
+              return {
+                search: !values.search ? values.search : values.search.map(item => ((values = {}, options = {}) => {
+                  const typenames = ['Author', 'Post'];
+                  const __typename = typenames.find(typename => typename === values.__typename) || typenames[0];
+                  values = (({  }) => ({  }))(values);
+                  values.__typename = __typename;
+                  return {
+                    ...(['Author', 'Post'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
+                      values = (({  }) => ({  }))(values);
+                      return {
+                        ...(['Author', 'Post'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
+                          values = (({ idField = null }) => ({ idField }))(values);
+                          return {
+                            idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField
+                          };
+                        })(values, options) : {}),
+                        ...(['Author'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
+                          values = (({ posts = null }) => ({ posts }))(values);
+                          return {
+                            posts: !values.posts ? values.posts : values.posts.map(item => ((values = {}, options = {}) => {
+                              const __typename = 'Post';
+                              values = (({ idField = null }) => ({ idField }))(values);
+                              values.__typename = __typename;
+                              return {
+                                idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
+                                ...(options.addTypename ? { __typename } : {})
+                              };
+                            })(item, options))
+                          };
+                        })(values, options) : {}),
+                        ...(['Post'].find(typename => typename === __typename) ? ((values = {}, options = {}) => {
+                          values = (({ author = null }) => ({ author }))(values);
+                          return {
+                            author: !values.author ? values.author : ((values = {}, options = {}) => {
+                              const __typename = 'Author';
+                              values = (({ idField = null }) => ({ idField }))(values);
+                              values.__typename = __typename;
+                              return {
+                                idField: (values.idField === null || values.idField === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'ID', mappedTypeName: 'string', fieldName: 'idField', __typename, scalarValues: options.scalarValues }) : values.idField,
+                                ...(options.addTypename ? { __typename } : {})
+                              };
+                            })(values.author, options)
+                          };
+                        })(values, options) : {})
+                      };
+                    })(values, options) : {}),
+                    ...(options.addTypename ? { __typename } : {})
+                  };
+                })(item, options))
+              };
+            };"
+          `);
+        });
 
-      it("should pick first type of the union type by default", () => {
-        const result = apolloMock(document, {}, { data: { search: [{}] } });
+        it("should pick first type of the union type by default", async () => {
+          const [config, document] = getTestConfig();
+          const output = await codegen(config);
+          const apolloMock = getApolloMock(output);
+          const result = apolloMock(document, {}, { data: { search: [{}] } });
 
-        expect(result).toMatchInlineSnapshot(`
-          {
-            "request": {
-              "query": "...",
-              "variables": {}
-            },
-            "result": {
-              "data": {
-                "search": [
-                  {
-                    "idField": "Author-idField",
-                    "posts": null,
-                    "__typename": "Author"
-                  }
-                ]
+          expect(result).toMatchInlineSnapshot(`
+            {
+              "request": {
+                "query": "...",
+                "variables": {}
+              },
+              "result": {
+                "data": {
+                  "search": [
+                    {
+                      "idField": "Author-idField",
+                      "posts": null,
+                      "__typename": "Author"
+                    }
+                  ]
+                }
               }
             }
-          }
-        `);
-      });
+          `);
+        });
 
-      it("should allow to override type", () => {
-        const obj = { __typename: "Post" };
-        const result = apolloMock(document, {}, { data: { search: [obj] } });
+        it("should allow to override type", async () => {
+          const [config, document] = getTestConfig();
+          const output = await codegen(config);
+          const apolloMock = getApolloMock(output);
+          const obj = { __typename: "Post" };
+          const result = apolloMock(document, {}, { data: { search: [obj] } });
 
-        expect(result).toMatchInlineSnapshot(`
-          {
-            "request": {
-              "query": "...",
-              "variables": {}
-            },
-            "result": {
-              "data": {
-                "search": [
-                  {
-                    "idField": "Post-idField",
-                    "author": null,
-                    "__typename": "Post"
-                  }
-                ]
+          expect(result).toMatchInlineSnapshot(`
+            {
+              "request": {
+                "query": "...",
+                "variables": {}
+              },
+              "result": {
+                "data": {
+                  "search": [
+                    {
+                      "idField": "Post-idField",
+                      "author": null,
+                      "__typename": "Post"
+                    }
+                  ]
+                }
               }
             }
-          }
-        `);
-      });
+          `);
+        });
 
-      it("should ignore invalid type", () => {
-        const obj = { __typename: "Foo" };
-        const result = apolloMock(document, {}, { data: { search: [obj] } });
+        it("should ignore invalid type", async () => {
+          const [config, document] = getTestConfig();
+          const output = await codegen(config);
+          const apolloMock = getApolloMock(output);
+          const obj = { __typename: "Foo" };
+          const result = apolloMock(document, {}, { data: { search: [obj] } });
 
-        expect(result).toMatchInlineSnapshot(`
-          {
-            "request": {
-              "query": "...",
-              "variables": {}
-            },
-            "result": {
-              "data": {
-                "search": [
-                  {
-                    "idField": "Author-idField",
-                    "posts": null,
-                    "__typename": "Author"
-                  }
-                ]
+          expect(result).toMatchInlineSnapshot(`
+            {
+              "request": {
+                "query": "...",
+                "variables": {}
+              },
+              "result": {
+                "data": {
+                  "search": [
+                    {
+                      "idField": "Author-idField",
+                      "posts": null,
+                      "__typename": "Author"
+                    }
+                  ]
+                }
               }
             }
-          }
-        `);
+          `);
+        });
       });
     });
 
     describe("with __typename", () => {
-      let document: DocumentNode;
-      let output: string;
-      let apolloMock: ApolloMockFn;
-
-      beforeEach(async () => {
-        document = parse(`
+      const getTestConfig: GetTestConfig = () => {
+        const document = parse(`
           query typename {
             authors {
               __typename
@@ -1163,13 +1217,14 @@ describe("codegenApolloMock", () => {
         `);
 
         const documents = [{ document, location: "typename.gql" }];
-        const config = getConfig({ documents });
 
-        output = await codegen(config);
-        apolloMock = getApolloMock(output);
-      });
+        return [getConfig({ documents }), document];
+      };
 
-      it("should have matching operation", () => {
+      it("should have matching operation", async () => {
+        const [config] = getTestConfig();
+        const output = await codegen(config);
+
         expect(output).toMatchInlineSnapshot(`
           "import { createApolloMock } from 'apollo-typed-documents';
 
@@ -1234,7 +1289,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should include __typename even when disabled in options", () => {
+      it("should include __typename even when disabled in options", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(
           document,
           {},
@@ -1278,12 +1336,8 @@ describe("codegenApolloMock", () => {
     });
 
     describe("with alias", () => {
-      let document: DocumentNode;
-      let output: string;
-      let apolloMock: ApolloMockFn;
-
-      beforeEach(async () => {
-        document = parse(`
+      const getTestConfig: GetTestConfig = () => {
+        const document = parse(`
           query authors {
             allAuthors: authors {
               idField
@@ -1292,13 +1346,14 @@ describe("codegenApolloMock", () => {
         `);
 
         const documents = [{ document, location: "authors.gql" }];
-        const config = getConfig({ documents });
 
-        output = await codegen(config);
-        apolloMock = getApolloMock(output);
-      });
+        return [getConfig({ documents }), document];
+      };
 
-      it("should have matching operation", () => {
+      it("should have matching operation", async () => {
+        const [config] = getTestConfig();
+        const output = await codegen(config);
+
         expect(output).toMatchInlineSnapshot(`
           "import { createApolloMock } from 'apollo-typed-documents';
 
@@ -1334,7 +1389,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should use alias for both input and output", () => {
+      it("should use alias for both input and output", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(document, {}, { data: { allAuthors: [{}] } });
 
         expect(result).toMatchInlineSnapshot(`
@@ -1361,12 +1419,8 @@ describe("codegenApolloMock", () => {
 
   describe("mutation", () => {
     describe("with minimal document", () => {
-      let document: DocumentNode;
-      let output: string;
-      let apolloMock: ApolloMockFn;
-
-      beforeEach(async () => {
-        document = parse(`
+      const getTestConfig: GetTestConfig = () => {
+        const document = parse(`
           mutation createAuthor {
             createAuthor {
               idField
@@ -1375,13 +1429,14 @@ describe("codegenApolloMock", () => {
         `);
 
         const documents = [{ document, location: "createAuthor.gql" }];
-        const config = getConfig({ documents });
 
-        output = await codegen(config);
-        apolloMock = getApolloMock(output);
-      });
+        return [getConfig({ documents }), document];
+      };
 
-      it("should have matching operation", () => {
+      it("should have matching operation", async () => {
+        const [config] = getTestConfig();
+        const output = await codegen(config);
+
         expect(output).toMatchInlineSnapshot(`
           "import { createApolloMock } from 'apollo-typed-documents';
 
@@ -1417,7 +1472,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("should allow document only", () => {
+      it("should allow document only", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(document);
 
         expect(result).toMatchInlineSnapshot(`
@@ -1440,12 +1498,8 @@ describe("codegenApolloMock", () => {
     });
 
     describe("with extensive document", () => {
-      let document: DocumentNode;
-      let output: string;
-      let apolloMock: ApolloMockFn;
-
-      beforeEach(async () => {
-        document = parse(`
+      const getTestConfig: GetTestConfig = () => {
+        const document = parse(`
           mutation createAuthorExtensive($author: AuthorInput, $authorNonNull: AuthorInput!) {
             createAuthorExtensive(author: $author, authorNonNull: $authorNonNull) {
               idField
@@ -1454,13 +1508,14 @@ describe("codegenApolloMock", () => {
         `);
 
         const documents = [{ document, location: "createAuthorExtensive.gql" }];
-        const config = getConfig({ documents });
 
-        output = await codegen(config);
-        apolloMock = getApolloMock(output);
-      });
+        return [getConfig({ documents }), document];
+      };
 
-      it("should have matching operation", () => {
+      it("should have matching operation", async () => {
+        const [config] = getTestConfig();
+        const output = await codegen(config);
+
         expect(output).toMatchInlineSnapshot(`
           "import { createApolloMock } from 'apollo-typed-documents';
 
@@ -1523,7 +1578,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("with empty variables", () => {
+      it("with empty variables", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(document, {}, {});
 
         expect(result).toMatchInlineSnapshot(`
@@ -1551,7 +1609,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("with empty object as author", () => {
+      it("with empty object as author", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(document, { author: {} }, {});
 
         expect(result).toMatchInlineSnapshot(`
@@ -1585,7 +1646,10 @@ describe("codegenApolloMock", () => {
         `);
       });
 
-      it("with custom data", () => {
+      it("with custom data", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
         const result = apolloMock(
           document,
           {

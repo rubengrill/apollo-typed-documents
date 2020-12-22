@@ -11,7 +11,9 @@ generates:
       typesModule: "@codegen-types"
   ./src/codegenTypes.d.ts:
     plugins:
-      - add: 'declare module "@codegen-types" {'
+      - add:
+          placement: prepend
+          content: 'declare module "@codegen-types" {'
       - add:
           placement: append
           content: "}"
@@ -19,5 +21,7 @@ generates:
       - typescript-operations
   ./src/apolloMock.js:
     plugins:
-      - add: "/* eslint-disable */"
+      - add:
+          placement: prepend
+          content: "/* eslint-disable */"
       - apollo-typed-documents/lib/codegenApolloMock

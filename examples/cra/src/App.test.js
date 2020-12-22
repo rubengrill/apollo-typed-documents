@@ -1,5 +1,5 @@
 import { MockedProvider } from "@apollo/client/testing";
-import { fireEvent, render, wait } from "@testing-library/react";
+import { fireEvent, render, waitFor } from "@testing-library/react";
 import React from "react";
 
 import apolloMock from "./apolloMock";
@@ -30,7 +30,7 @@ test("adds author", async () => {
 
   fireEvent.click(getByText("Add"));
 
-  await wait(() => {
+  await waitFor(() => {
     expect(getByText("Foo")).toBeInTheDocument();
   });
 });

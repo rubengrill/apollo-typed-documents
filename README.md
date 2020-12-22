@@ -18,6 +18,8 @@ Similar to `@graphql-codegen/typescript-graphql-files-modules` (https://graphql-
 
 The difference is that is uses generic types, so that you have type safety with Apollo (e.g. `useQuery` / `useMutation`).
 
+The `apollo-typed-documents` plugin also accepts the same `modulePathPrefix`, `relativeToCwd` and `prefix` config settings as [typescript-graphql-files-modules](https://graphql-code-generator.com/docs/plugins/typescript-graphql-files-modules).
+
 ### Install
 
 ```sh
@@ -43,7 +45,9 @@ generates:
       typesModule: "@codegen-types"
   ./src/codegenTypes.d.ts:
     plugins:
-      - add: 'declare module "@codegen-types" {'
+      - add:
+          placement: prepend
+          content: 'declare module "@codegen-types" {'
       - add:
           placement: append
           content: "}"
