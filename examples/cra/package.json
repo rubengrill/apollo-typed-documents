@@ -5,16 +5,16 @@
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
     "@apollo/react-testing": "^3.1.4",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
+    "@testing-library/jest-dom": "^5.11.6",
+    "@testing-library/react": "^11.2.2",
+    "@testing-library/user-event": "^12.6.0",
     "apollo-typed-documents": "link:../..",
     "babel-plugin-import-graphql": "^2.7.0",
-    "customize-cra": "^0.9.1",
-    "react": "^16.13.1",
-    "react-app-rewired": "^2.1.5",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "customize-cra": "^1.0.0",
+    "react": "^17.0.1",
+    "react-app-rewired": "^2.1.8",
+    "react-dom": "^17.0.1",
+    "react-scripts": "4.0.1"
   },
   "scripts": {
     "start": "react-app-rewired start",

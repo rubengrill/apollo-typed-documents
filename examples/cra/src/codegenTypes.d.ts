@@ -1,7 +1,8 @@
 declare module "@codegen-types" {
 export type Maybe<T> = T | null;
-
-
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -12,13 +13,20 @@ export type Scalars = {
   Date: string;
 };
 
+
 export type Author = {
-   __typename?: 'Author';
+  __typename?: 'Author';
   id: Scalars['ID'];
   createdAt: Scalars['Date'];
   name: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   books: Array<Book>;
+};
+
+export type Book = {
+  __typename?: 'Book';
+  id: Scalars['ID'];
+  title: Scalars['String'];
 };
 
 export type AuthorInput = {
@@ -27,19 +35,17 @@ export type AuthorInput = {
   books: Array<BookInput>;
 };
 
-export type Book = {
-   __typename?: 'Book';
-  id: Scalars['ID'];
-  title: Scalars['String'];
-};
-
 export type BookInput = {
   title: Scalars['String'];
 };
 
+export type Query = {
+  __typename?: 'Query';
+  authors: Array<Author>;
+};
 
 export type Mutation = {
-   __typename?: 'Mutation';
+  __typename?: 'Mutation';
   createAuthor: Author;
 };
 
@@ -48,12 +54,7 @@ export type MutationCreateAuthorArgs = {
   input: AuthorInput;
 };
 
-export type Query = {
-   __typename?: 'Query';
-  authors: Array<Author>;
-};
-
-export type AuthorsQueryVariables = {};
+export type AuthorsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AuthorsQuery = (
@@ -68,9 +69,9 @@ export type AuthorsQuery = (
   )> }
 );
 
-export type CreateAuthorMutationVariables = {
+export type CreateAuthorMutationVariables = Exact<{
   input: AuthorInput;
-};
+}>;
 
 
 export type CreateAuthorMutation = (

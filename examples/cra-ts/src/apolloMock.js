@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 import { createApolloMock } from 'apollo-typed-documents';
 
 const operations = {};
