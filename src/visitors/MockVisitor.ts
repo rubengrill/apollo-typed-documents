@@ -76,7 +76,7 @@ export default class MockVisitor {
     const fields = input ? field.inputFields : field.outputFields;
     const fieldNames = fields
       .filter((field) => !field.isFragment)
-      .map((field) => field.name);
+      .map((field) => field.safeName);
 
     output.push(" ".repeat(indent));
     output.push("values = (({ ");

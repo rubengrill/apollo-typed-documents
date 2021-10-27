@@ -35,6 +35,7 @@ export interface TypedField {
   isList: boolean;
   isFragment: boolean;
   isTypename: boolean;
+  safeName: string;
   typenames: string[];
 
   scalarType?: GraphQLScalarType;
@@ -49,18 +50,75 @@ export interface TypedOperationDefinitionNode extends OperationDefinitionNode {
   typed: TypedField;
 }
 
+const KEYWORDS = [
+  "await",
+  "break",
+  "case",
+  "catch",
+  "class",
+  "const",
+  "continue",
+  "debugger",
+  "default",
+  "delete",
+  "do",
+  "else",
+  "enum",
+  "export",
+  "extends",
+  "false",
+  "finally",
+  "for",
+  "function",
+  "if",
+  "implements",
+  "import",
+  "in",
+  "instanceof",
+  "interface",
+  "let",
+  "new",
+  "null",
+  "package",
+  "private",
+  "protected",
+  "public",
+  "return",
+  "super",
+  "switch",
+  "static",
+  "this",
+  "throw",
+  "try",
+  "True",
+  "typeof",
+  "var",
+  "void",
+  "while",
+  "with",
+  "yield",
+];
+
+const getSafeName = (name: string) =>
+  KEYWORDS.includes(name) ? `${name}: __safe_${name}__` : name;
+
 const createTypedField = (
   field: Partial<TypedField> & { name: string }
-): TypedField => ({
-  inputFields: [],
-  outputFields: [],
-  isNonNull: false,
-  isList: false,
-  isFragment: false,
-  isTypename: false,
-  typenames: [],
-  ...field,
-});
+): TypedField => {
+  const safeName = getSafeName(field.name);
+
+  return {
+    inputFields: [],
+    outputFields: [],
+    isNonNull: false,
+    isList: false,
+    isFragment: false,
+    isTypename: false,
+    safeName,
+    typenames: [],
+    ...field,
+  };
+};
 
 const isFragmentDefinitionNode = (
   node: DefinitionNode
