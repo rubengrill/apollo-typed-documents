@@ -74,17 +74,21 @@ export default class MockVisitor {
 
     const defaultValue = input ? "undefined" : "null";
     const fields = input ? field.inputFields : field.outputFields;
-    const fieldNames = fields
+    const safelyReferencedFieldNames = fields
       .filter((field) => !field.isFragment)
-      .map((field) => field.safeName);
+      .map(({ name }) =>
+        RESERVED_JS_KEYWORDS.includes(name) ? `${name}: __safe_${name}__` : name
+      );
 
     output.push(" ".repeat(indent));
     output.push("values = (({ ");
     output.push(
-      fieldNames.map((name) => `${name} = ${defaultValue}`).join(", ")
+      safelyReferencedFieldNames
+        .map((name) => `${name} = ${defaultValue}`)
+        .join(", ")
     );
     output.push(" }) => ({ ");
-    output.push(fieldNames.join(", "));
+    output.push(safelyReferencedFieldNames.join(", "));
     output.push(" }))(values);\n");
 
     if (!field.isFragment) {
@@ -233,3 +237,52 @@ export default class MockVisitor {
     return output.join("");
   }
 }
+
+const RESERVED_JS_KEYWORDS = [
+  "await",
+  "break",
+  "case",
+  "catch",
+  "class",
+  "const",
+  "continue",
+  "debugger",
+  "default",
+  "delete",
+  "do",
+  "else",
+  "enum",
+  "export",
+  "extends",
+  "false",
+  "finally",
+  "for",
+  "function",
+  "if",
+  "implements",
+  "import",
+  "in",
+  "instanceof",
+  "interface",
+  "let",
+  "new",
+  "null",
+  "package",
+  "private",
+  "protected",
+  "public",
+  "return",
+  "super",
+  "switch",
+  "static",
+  "this",
+  "throw",
+  "try",
+  "True",
+  "typeof",
+  "var",
+  "void",
+  "while",
+  "with",
+  "yield",
+];

@@ -1419,78 +1419,6 @@ describe("codegenApolloMock", () => {
   });
 
   describe("mutation", () => {
-    describe("with `delete` argument", () => {
-      const getTestConfig: GetTestConfig = () => {
-        const document = parse(`
-          mutation deleteAuthors($delete: [ID!]) {
-            deleteAuthors(delete: $delete)
-          }
-        `);
-
-        const documents = [{ document, location: "deleteAuthors.gql" }];
-
-        return [getConfig({ documents }), document];
-      };
-
-      it("should reference arguments named `delete` in a safe way", async () => {
-        const [config] = getTestConfig();
-        const output = await codegen(config);
-
-        expect(output).toBeTruthy();
-        expect(output).toMatchInlineSnapshot(`
-          "import { createApolloMock } from 'apollo-typed-documents';
-
-          const operations = {};
-
-          export default createApolloMock(operations);
-
-          operations.deleteAuthors = {};
-          operations.deleteAuthors.variables = (values = {}, options = {}) => {
-            const __typename = '';
-            values = (({ delete: __safe_delete__ = undefined }) => ({ delete: __safe_delete__ }))(values);
-            values.__typename = __typename;
-            return {
-              delete: values.delete
-            };
-          };
-          operations.deleteAuthors.data = (values = {}, options = {}) => {
-            const __typename = '';
-            values = (({ deleteAuthors = null }) => ({ deleteAuthors }))(values);
-            values.__typename = __typename;
-            return {
-              deleteAuthors: values.deleteAuthors
-            };
-          };"
-        `);
-      });
-
-      it("with arguments", async () => {
-        const [config, document] = getTestConfig();
-        const output = await codegen(config);
-        const apolloMock = getApolloMock(output);
-        const result = apolloMock(document, { delete: ["a", "b"] }, {});
-
-        expect(result).toMatchInlineSnapshot(`
-          {
-            "request": {
-              "query": "...",
-              "variables": {
-                "delete": [
-                  "a",
-                  "b"
-                ]
-              }
-            },
-            "result": {
-              "data": {
-                "deleteAuthors": null
-              }
-            }
-          }
-        `);
-      });
-    });
-
     describe("with minimal document", () => {
       const getTestConfig: GetTestConfig = () => {
         const document = parse(`
@@ -1770,6 +1698,78 @@ describe("codegenApolloMock", () => {
                   "idField": "Author-idField",
                   "__typename": "Author"
                 }
+              }
+            }
+          }
+        `);
+      });
+    });
+
+    describe("with JavaScript reserved keyword as argument", () => {
+      const getTestConfig: GetTestConfig = () => {
+        const document = parse(`
+          mutation deleteAuthors($delete: [ID!]) {
+            deleteAuthors(delete: $delete)
+          }
+        `);
+
+        const documents = [{ document, location: "deleteAuthors.gql" }];
+
+        return [getConfig({ documents }), document];
+      };
+
+      it("should reference argument in a safe way", async () => {
+        const [config] = getTestConfig();
+        const output = await codegen(config);
+
+        expect(output).toBeTruthy();
+        expect(output).toMatchInlineSnapshot(`
+          "import { createApolloMock } from 'apollo-typed-documents';
+
+          const operations = {};
+
+          export default createApolloMock(operations);
+
+          operations.deleteAuthors = {};
+          operations.deleteAuthors.variables = (values = {}, options = {}) => {
+            const __typename = '';
+            values = (({ delete: __safe_delete__ = undefined }) => ({ delete: __safe_delete__ }))(values);
+            values.__typename = __typename;
+            return {
+              delete: values.delete
+            };
+          };
+          operations.deleteAuthors.data = (values = {}, options = {}) => {
+            const __typename = '';
+            values = (({ deleteAuthors = null }) => ({ deleteAuthors }))(values);
+            values.__typename = __typename;
+            return {
+              deleteAuthors: values.deleteAuthors
+            };
+          };"
+        `);
+      });
+
+      it("with arguments", async () => {
+        const [config, document] = getTestConfig();
+        const output = await codegen(config);
+        const apolloMock = getApolloMock(output);
+        const result = apolloMock(document, { delete: ["a", "b"] }, {});
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "request": {
+              "query": "...",
+              "variables": {
+                "delete": [
+                  "a",
+                  "b"
+                ]
+              }
+            },
+            "result": {
+              "data": {
+                "deleteAuthors": null
               }
             }
           }
