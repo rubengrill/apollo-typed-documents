@@ -213,9 +213,8 @@ export default class TypedVisitor {
 
         if (isInputObjectType(fieldType)) {
           typedField.inputObjectType = fieldType;
-          typedField.inputFields = this.getInputFieldsForInputObjectType(
-            fieldType
-          );
+          typedField.inputFields =
+            this.getInputFieldsForInputObjectType(fieldType);
         } else if (isScalarType(fieldType)) {
           typedField.scalarType = fieldType;
         } else if (isEnumType(fieldType)) {
