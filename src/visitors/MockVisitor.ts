@@ -74,21 +74,27 @@ export default class MockVisitor {
 
     const defaultValue = input ? "undefined" : "null";
     const fields = input ? field.inputFields : field.outputFields;
-    const safelyReferencedFieldNames = fields
+    const fieldNames = fields
       .filter((field) => !field.isFragment)
-      .map(({ name }) =>
-        RESERVED_JS_KEYWORDS.includes(name) ? `${name}: __safe_${name}__` : name
-      );
+      .map(({ name }) => name);
+
+    const destructuringExpressions = fieldNames.map((name) =>
+      RESERVED_JS_KEYWORDS.includes(name)
+        ? `${name}: ${getSafeAlias(name)} = ${defaultValue}`
+        : `${name} = ${defaultValue}`
+    );
+
+    const objectInitializationExpressions = fieldNames.map((name) =>
+      RESERVED_JS_KEYWORDS.includes(name)
+        ? `${name}: ${getSafeAlias(name)}`
+        : name
+    );
 
     output.push(" ".repeat(indent));
     output.push("values = (({ ");
-    output.push(
-      safelyReferencedFieldNames
-        .map((name) => `${name} = ${defaultValue}`)
-        .join(", ")
-    );
+    output.push(destructuringExpressions.join(", "));
     output.push(" }) => ({ ");
-    output.push(safelyReferencedFieldNames.join(", "));
+    output.push(objectInitializationExpressions.join(", "));
     output.push(" }))(values);\n");
 
     if (!field.isFragment) {
@@ -286,3 +292,5 @@ const RESERVED_JS_KEYWORDS = [
   "with",
   "yield",
 ];
+
+const getSafeAlias = (name: string) => `__safe_${name}__`;
