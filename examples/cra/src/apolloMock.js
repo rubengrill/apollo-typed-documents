@@ -94,11 +94,11 @@ const BookInput = (values = {}, options = {}) => {
 
 const AuthorInput = (values = {}, options = {}) => {
   const __typename = 'AuthorInput';
-  values = (({ name = undefined, description = undefined, books = undefined }) => ({ name, description, books }))(values);
+  values = (({ books = undefined, description = undefined, name = undefined }) => ({ books, description, name }))(values);
   values.__typename = __typename;
   return {
-    name: (values.name === null || values.name === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'String', mappedTypeName: 'string', fieldName: 'name', __typename, scalarValues: options.scalarValues }) : values.name,
+    books: (values.books || []).map(item => (BookInput)(item, options)),
     description: values.description,
-    books: (values.books || []).map(item => (BookInput)(item, options))
+    name: (values.name === null || values.name === undefined) ? options.getDefaultScalarValue({ scalarTypeName: 'String', mappedTypeName: 'string', fieldName: 'name', __typename, scalarValues: options.scalarValues }) : values.name
   };
 };

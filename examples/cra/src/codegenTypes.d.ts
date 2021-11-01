@@ -13,14 +13,19 @@ export type Scalars = {
   Date: string;
 };
 
-
 export type Author = {
   __typename?: 'Author';
-  id: Scalars['ID'];
-  createdAt: Scalars['Date'];
-  name: Scalars['String'];
-  description?: Maybe<Scalars['String']>;
   books: Array<Book>;
+  createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+};
+
+export type AuthorInput = {
+  books: Array<BookInput>;
+  description?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
 };
 
 export type Book = {
@@ -29,19 +34,8 @@ export type Book = {
   title: Scalars['String'];
 };
 
-export type AuthorInput = {
-  name: Scalars['String'];
-  description?: Maybe<Scalars['String']>;
-  books: Array<BookInput>;
-};
-
 export type BookInput = {
   title: Scalars['String'];
-};
-
-export type Query = {
-  __typename?: 'Query';
-  authors: Array<Author>;
 };
 
 export type Mutation = {
@@ -54,36 +48,21 @@ export type MutationCreateAuthorArgs = {
   input: AuthorInput;
 };
 
+export type Query = {
+  __typename?: 'Query';
+  authors: Array<Author>;
+};
+
 export type AuthorsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AuthorsQuery = (
-  { __typename?: 'Query' }
-  & { authors: Array<(
-    { __typename?: 'Author' }
-    & Pick<Author, 'id' | 'createdAt' | 'name' | 'description'>
-    & { books: Array<(
-      { __typename?: 'Book' }
-      & Pick<Book, 'id' | 'title'>
-    )> }
-  )> }
-);
+export type AuthorsQuery = { __typename?: 'Query', authors: Array<{ __typename?: 'Author', id: string, createdAt: string, name: string, description?: string | null | undefined, books: Array<{ __typename?: 'Book', id: string, title: string }> }> };
 
 export type CreateAuthorMutationVariables = Exact<{
   input: AuthorInput;
 }>;
 
 
-export type CreateAuthorMutation = (
-  { __typename?: 'Mutation' }
-  & { createAuthor: (
-    { __typename?: 'Author' }
-    & Pick<Author, 'id' | 'createdAt' | 'name' | 'description'>
-    & { books: Array<(
-      { __typename?: 'Book' }
-      & Pick<Book, 'id' | 'title'>
-    )> }
-  ) }
-);
+export type CreateAuthorMutation = { __typename?: 'Mutation', createAuthor: { __typename?: 'Author', id: string, createdAt: string, name: string, description?: string | null | undefined, books: Array<{ __typename?: 'Book', id: string, title: string }> } };
 
 }
