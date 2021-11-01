@@ -1,6 +1,6 @@
 {
   "name": "apollo-typed-documents",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Get type safety for your apollo documents.",
   "keywords": [
     "apollo",
