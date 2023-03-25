@@ -24,9 +24,7 @@
     "version": "yarn run build",
     "postversion": "git push && git push --tags",
     "test": "jest",
-    "lint": "eslint --ext .js,.ts src/ examples/docs/",
-    "generate": "yarn run build && (cd examples/cra && yarn run generate) && (cd examples/cra-ts && yarn run generate) && (cd examples/docs && yarn run generate)",
-    "docs": "yarn run generate && md-magic --path README.md"
+    "lint": "eslint --ext .js,.ts src/"
   },
   "dependencies": {
     "@graphql-codegen/visitor-plugin-common": "^3.0.2",
@@ -37,15 +35,11 @@
   },
   "devDependencies": {
     "@apollo/client": "^3.7",
-    "@graphql-codegen/add": "^4.0.1",
     "@graphql-codegen/cli": "^3.2.2",
     "@graphql-codegen/core": "^3.1.0",
     "@graphql-codegen/plugin-helpers": "^4.0.0",
-    "@graphql-codegen/typescript": "^3.0.2",
-    "@graphql-codegen/typescript-operations": "^3.0.2",
     "@types/jest": "^27.3.1",
     "@types/node": "^18.15.8",
-    "@types/react": "^18.0.29",
     "@types/tmp": "^0.2.3",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
@@ -57,16 +51,12 @@
     "graphql-tag": "^2.12.6",
     "import-sort-style-module": "^6.0.0",
     "jest": "^27.3.1",
-    "jest-transform-graphql": "^2.1.0",
-    "markdown-magic": "^2.6.1",
-    "pascal-case": "^3.1.1",
     "prettier": "^2.8.7",
     "prettier-plugin-import-sort": "^0.0.7",
-    "react": "^18.2.0",
     "rimraf": "^4.4.1",
     "tmp": "^0.2.1",
     "ts-jest": "^27.0.7",
-    "typescript": "^5"
+    "typescript": "<5"
   },
   "importSort": {
     ".js, .jsx, .ts, .tsx": {

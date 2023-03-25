@@ -1,9 +1,0 @@
-{
-  "private": true,
-  "scripts": {
-    "generate": "../../node_modules/@graphql-codegen/cli/bin.js --config codegenApolloMock.yml && ../../node_modules/@graphql-codegen/cli/bin.js --config codegenTypedDocuments.yml"
-  },
-  "dependencies": {
-    "apollo-typed-documents": "link:../.."
-  }
-}
