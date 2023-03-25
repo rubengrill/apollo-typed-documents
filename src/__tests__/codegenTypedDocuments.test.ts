@@ -78,16 +78,16 @@ describe("codegenTypedDocuments", () => {
 
     expect(output).toMatchInlineSnapshot(`
       "declare module \\"*/authors.gql\\" {
-        import { TypedDocumentNode } from \\"apollo-typed-documents\\";
+        import { TypedDocumentNode } from \\"@apollo/client\\";
         import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
-        export const authors: TypedDocumentNode<AuthorsQueryVariables, AuthorsQuery>;
+        export const authors: TypedDocumentNode<AuthorsQuery, AuthorsQueryVariables>;
         export default authors;
       }
 
       declare module \\"*/createAuthor.gql\\" {
-        import { TypedDocumentNode } from \\"apollo-typed-documents\\";
+        import { TypedDocumentNode } from \\"@apollo/client\\";
         import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
-        export const createAuthor: TypedDocumentNode<CreateAuthorMutationVariables, CreateAuthorMutation>;
+        export const createAuthor: TypedDocumentNode<CreateAuthorMutation, CreateAuthorMutationVariables>;
         export default createAuthor;
       }"
     `);
@@ -130,19 +130,19 @@ describe("codegenTypedDocuments", () => {
 
     expect(output).toMatchInlineSnapshot(`
       "declare module \\"*/authors.gql\\" {
-        import { TypedDocumentNode } from \\"apollo-typed-documents\\";
+        import { TypedDocumentNode } from \\"@apollo/client\\";
         import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
-        export const authors: TypedDocumentNode<AuthorsQueryVariables, AuthorsQuery>;
+        export const authors: TypedDocumentNode<AuthorsQuery, AuthorsQueryVariables>;
         import { AlsoAuthorsQuery, AlsoAuthorsQueryVariables } from \\"@codegen-types\\";
-        export const alsoAuthors: TypedDocumentNode<AlsoAuthorsQueryVariables, AlsoAuthorsQuery>;
+        export const alsoAuthors: TypedDocumentNode<AlsoAuthorsQuery, AlsoAuthorsQueryVariables>;
       }
 
       declare module \\"*/createAuthor.gql\\" {
-        import { TypedDocumentNode } from \\"apollo-typed-documents\\";
+        import { TypedDocumentNode } from \\"@apollo/client\\";
         import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
-        export const createAuthor: TypedDocumentNode<CreateAuthorMutationVariables, CreateAuthorMutation>;
+        export const createAuthor: TypedDocumentNode<CreateAuthorMutation, CreateAuthorMutationVariables>;
         import { AlsoCreateAuthorMutation, AlsoCreateAuthorMutationVariables } from \\"@codegen-types\\";
-        export const alsoCreateAuthor: TypedDocumentNode<AlsoCreateAuthorMutationVariables, AlsoCreateAuthorMutation>;
+        export const alsoCreateAuthor: TypedDocumentNode<AlsoCreateAuthorMutation, AlsoCreateAuthorMutationVariables>;
       }"
     `);
   });
@@ -175,16 +175,16 @@ describe("codegenTypedDocuments", () => {
 
       expect(output).toMatchInlineSnapshot(`
         "declare module \\"*/authors.gql\\" {
-          import { TypedDocumentNode } from \\"apollo-typed-documents\\";
+          import { TypedDocumentNode } from \\"@apollo/client\\";
           import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
-          export const authors: TypedDocumentNode<AuthorsQueryVariables, AuthorsQuery>;
+          export const authors: TypedDocumentNode<AuthorsQuery, AuthorsQueryVariables>;
           export default authors;
         }
 
         declare module \\"*/createAuthor.gql\\" {
-          import { TypedDocumentNode } from \\"apollo-typed-documents\\";
+          import { TypedDocumentNode } from \\"@apollo/client\\";
           import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
-          export const createAuthor: TypedDocumentNode<CreateAuthorMutationVariables, CreateAuthorMutation>;
+          export const createAuthor: TypedDocumentNode<CreateAuthorMutation, CreateAuthorMutationVariables>;
           export default createAuthor;
         }"
       `);

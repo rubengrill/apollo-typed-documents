@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.4.16",
+    "@graphql-codegen/cli": "^3.2.2",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
@@ -20,7 +21,7 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject",
-    "generate": "../../node_modules/@graphql-codegen/cli/bin.js"
+    "generate": "../../node_modules/@graphql-codegen/cli/cjs/bin.js"
   },
   "eslintConfig": {
     "extends": "react-app"

@@ -32,9 +32,7 @@ export default class TypedDocumentVisitor {
     const modulePath = `${this.config.prefix}${this.config.modulePathPrefix}${filepath}`;
 
     output.push(`declare module "${modulePath}" {\n`);
-    output.push(
-      '  import { TypedDocumentNode } from "apollo-typed-documents";\n'
-    );
+    output.push('  import { TypedDocumentNode } from "@apollo/client";\n');
 
     operationNodes.forEach((operationNode) => {
       if (!operationNode.name) {
@@ -49,7 +47,7 @@ export default class TypedDocumentVisitor {
         `  import { ${typeName}${typeNameSuffix}, ${typeName}${typeNameSuffix}Variables } from "${this.config.typesModule}";\n`
       );
       output.push(
-        `  export const ${operationName}: TypedDocumentNode<${typeName}${typeNameSuffix}Variables, ${typeName}${typeNameSuffix}>;\n`
+        `  export const ${operationName}: TypedDocumentNode<${typeName}${typeNameSuffix}, ${typeName}${typeNameSuffix}Variables>;\n`
       );
     });
 
