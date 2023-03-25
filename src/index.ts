@@ -1,10 +1,10 @@
-import {
+import type {
   PluginFunction,
   PluginValidateFn,
 } from "@graphql-codegen/plugin-helpers";
 import { visit } from "graphql";
 
-import { TypedFilesModulesConfig } from "./config";
+import type { TypedFilesModulesConfig } from "./config";
 import TypedDocumentVisitor from "./visitors/TypedDocumentVisitor";
 
 export const plugin: PluginFunction<TypedFilesModulesConfig> = (
@@ -14,6 +14,7 @@ export const plugin: PluginFunction<TypedFilesModulesConfig> = (
     typesModule,
     relativeToCwd,
     prefix = "*/",
+    stripPrefix = "",
     typedDocumentNodeModule = "@graphql-typed-document-node/core",
     excludeDefaultExports,
   }
@@ -23,6 +24,7 @@ export const plugin: PluginFunction<TypedFilesModulesConfig> = (
     relativeToCwd: relativeToCwd === true,
     excludeDefaultExports: excludeDefaultExports === true,
     prefix,
+    stripPrefix,
     typedDocumentNodeModule,
   };
 

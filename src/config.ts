@@ -14,12 +14,19 @@ export type TypedFilesModulesConfig = {
   relativeToCwd?: boolean;
 
   /**
-   * @default *\/
-   * @description By default all module declarations will be prefixed with
-   * "*\/". Override this to remove or specify a custom prefix (helpful to set
-   * to "" in conjunction with relativeToCwd.)
+   * @default "*\/"
+   * @description By default all module paths will be prefixed with "*\/".
+   * Override this to remove or specify a custom prefix (helpful to set to "" in
+   * conjunction with relativeToCwd.)
    */
   prefix?: string;
+
+  /**
+   * @default ""
+   * @description Used in conjunction with relativeToCwd if if imports should be
+   * relative to some subdirectory within the cwd, e.g. "src".
+   */
+  stripPrefix?: string;
 
   /**
    * @default "@graphql-typed-document-node/core"

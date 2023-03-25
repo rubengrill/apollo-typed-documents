@@ -1,8 +1,12 @@
-import { basename, relative } from "path";
+import { basename, join, relative } from "path";
 
-import { DefinitionNode, DocumentNode, OperationDefinitionNode } from "graphql";
+import type {
+  DefinitionNode,
+  DocumentNode,
+  OperationDefinitionNode,
+} from "graphql";
 import { pascalCase } from "pascal-case";
-import { TypedFilesModulesConfig } from "src/config";
+import type { TypedFilesModulesConfig } from "src/config";
 
 type Config = Required<TypedFilesModulesConfig>;
 
@@ -22,7 +26,7 @@ export default class TypedDocumentVisitor {
     const output: string[] = [];
 
     const filepath = this.config.relativeToCwd
-      ? relative(process.cwd(), this.location)
+      ? relative(join(process.cwd(), this.config.stripPrefix), this.location)
       : basename(this.location);
 
     const modulePath = `${this.config.prefix}${filepath}`;

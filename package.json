@@ -46,7 +46,6 @@
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.32.2",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
     "import-sort-style-module": "^6.0.0",
