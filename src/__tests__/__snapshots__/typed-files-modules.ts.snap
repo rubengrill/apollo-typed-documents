@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`typed-files-modules module path customization wildcards the basename by default 1`] = `
+"declare module \\"*/authors.gql\\" {
+  import { TypedDocumentNode } from \\"docnode\\";
+  import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
+  export const authors: TypedDocumentNode<AuthorsQuery, AuthorsQueryVariables>;
+  export default authors;
+}
+
+declare module \\"*/createAuthor.gql\\" {
+  import { TypedDocumentNode } from \\"docnode\\";
+  import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
+  export const createAuthor: TypedDocumentNode<CreateAuthorMutation, CreateAuthorMutationVariables>;
+  export default createAuthor;
+}"
+`;
+
+exports[`typed-files-modules should have ambient module declarations for each document 1`] = `
+"declare module \\"*/authors.gql\\" {
+  import { TypedDocumentNode } from \\"docnode\\";
+  import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
+  export const authors: TypedDocumentNode<AuthorsQuery, AuthorsQueryVariables>;
+  export default authors;
+}
+
+declare module \\"*/createAuthor.gql\\" {
+  import { TypedDocumentNode } from \\"docnode\\";
+  import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
+  export const createAuthor: TypedDocumentNode<CreateAuthorMutation, CreateAuthorMutationVariables>;
+  export default createAuthor;
+}"
+`;
+
+exports[`typed-files-modules should not have default exports for multiple operations 1`] = `
+"declare module \\"*/authors.gql\\" {
+  import { TypedDocumentNode } from \\"docnode\\";
+  import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
+  export const authors: TypedDocumentNode<AuthorsQuery, AuthorsQueryVariables>;
+  import { AlsoAuthorsQuery, AlsoAuthorsQueryVariables } from \\"@codegen-types\\";
+  export const alsoAuthors: TypedDocumentNode<AlsoAuthorsQuery, AlsoAuthorsQueryVariables>;
+}
+
+declare module \\"*/createAuthor.gql\\" {
+  import { TypedDocumentNode } from \\"docnode\\";
+  import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
+  export const createAuthor: TypedDocumentNode<CreateAuthorMutation, CreateAuthorMutationVariables>;
+  import { AlsoCreateAuthorMutation, AlsoCreateAuthorMutationVariables } from \\"@codegen-types\\";
+  export const alsoCreateAuthor: TypedDocumentNode<AlsoCreateAuthorMutation, AlsoCreateAuthorMutationVariables>;
+}"
+`;
+
+exports[`typed-files-modules should not have default exports if specifically excluded 1`] = `
+"declare module \\"*/authors.gql\\" {
+  import { TypedDocumentNode } from \\"docnode\\";
+  import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
+  export const authors: TypedDocumentNode<AuthorsQuery, AuthorsQueryVariables>;
+}
+
+declare module \\"*/createAuthor.gql\\" {
+  import { TypedDocumentNode } from \\"docnode\\";
+  import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
+  export const createAuthor: TypedDocumentNode<CreateAuthorMutation, CreateAuthorMutationVariables>;
+}"
+`;

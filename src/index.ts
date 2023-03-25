@@ -10,13 +10,20 @@ import TypedDocumentVisitor from "./visitors/TypedDocumentVisitor";
 export const plugin: PluginFunction<TypedFilesModulesConfig> = (
   _schema,
   documents,
-  { typesModule, modulePathPrefix = "", relativeToCwd, prefix = "*/" }
+  {
+    typesModule,
+    relativeToCwd,
+    prefix = "*/",
+    typedDocumentNodeModule = "@graphql-typed-document-node/core",
+    excludeDefaultExports,
+  }
 ) => {
   const config = {
     typesModule,
-    modulePathPrefix,
     relativeToCwd: relativeToCwd === true,
+    excludeDefaultExports: excludeDefaultExports === true,
     prefix,
+    typedDocumentNodeModule,
   };
 
   const output: string[] = [];
@@ -40,7 +47,8 @@ export const plugin: PluginFunction<TypedFilesModulesConfig> = (
 export const validate: PluginValidateFn<TypedFilesModulesConfig> = (
   _schema,
   _documents,
-  config
+  config,
+  outputFile
 ) => {
   if (!config.typesModule) {
     throw new Error(`You must specify "typesModule"!`);
@@ -52,6 +60,12 @@ export const validate: PluginValidateFn<TypedFilesModulesConfig> = (
   ) {
     throw new Error(
       `You must specify a non relative module for "typesModule"!`
+    );
+  }
+
+  if (!outputFile.endsWith(".d.ts")) {
+    throw new Error(
+      `Plugin "typed-files-modules" requires extension to be ".d.ts", which "${outputFile}" does not!`
     );
   }
 };

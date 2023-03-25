@@ -28,12 +28,13 @@ const getConfig = (
   generateOptions: Partial<Types.GenerateOptions> = {},
   pluginOptions: Partial<TypedFilesModulesConfig> = {}
 ): Types.GenerateOptions => ({
-  filename: "not-relevant",
+  filename: "ops.d.ts",
   schema: parse(printSchema(schema)),
   plugins: [
     {
       typedFilesModules: {
         typesModule: "@codegen-types",
+        typedDocumentNodeModule: "docnode",
         ...pluginOptions,
       },
     },
@@ -44,58 +45,33 @@ const getConfig = (
   ...generateOptions,
 });
 
-describe("codegenTypedDocuments", () => {
-  it("should not have any output when there are no documents", async () => {
-    const config = getConfig();
-    const output = await codegen(config);
-
-    expect(output).toMatchInlineSnapshot(`""`);
-  });
-
-  it("should have ambient module declarations for each document", async () => {
-    const queryDocument = parse(`
+const singleOpDocuments = [
+  {
+    location: "authors.gql",
+    document: parse(`
       query authors {
         authors {
           idField
         }
       }
-    `);
-
-    const mutationDocument = parse(`
+    `),
+  },
+  {
+    location: "createAuthor.gql",
+    document: parse(`
       mutation createAuthor {
         createAuthor {
           idField
         }
       }
-    `);
+    `),
+  },
+];
 
-    const documents = [
-      { document: queryDocument, location: "authors.gql" },
-      { document: mutationDocument, location: "createAuthor.gql" },
-    ];
-
-    const config = getConfig({ documents });
-    const output = await codegen(config);
-
-    expect(output).toMatchInlineSnapshot(`
-      "declare module \\"*/authors.gql\\" {
-        import { TypedDocumentNode } from \\"@apollo/client\\";
-        import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
-        export const authors: TypedDocumentNode<AuthorsQuery, AuthorsQueryVariables>;
-        export default authors;
-      }
-
-      declare module \\"*/createAuthor.gql\\" {
-        import { TypedDocumentNode } from \\"@apollo/client\\";
-        import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
-        export const createAuthor: TypedDocumentNode<CreateAuthorMutation, CreateAuthorMutationVariables>;
-        export default createAuthor;
-      }"
-    `);
-  });
-
-  it("should not have default exports for multiple operations", async () => {
-    const queryDocument = parse(`
+const multiOpDocuments = [
+  {
+    location: "authors.gql",
+    document: parse(`
       query authors {
         authors {
           idField
@@ -106,9 +82,11 @@ describe("codegenTypedDocuments", () => {
           idField
         }
       }
-    `);
-
-    const mutationDocument = parse(`
+    `),
+  },
+  {
+    location: "createAuthor.gql",
+    document: parse(`
       mutation createAuthor {
         createAuthor {
           idField
@@ -119,76 +97,49 @@ describe("codegenTypedDocuments", () => {
           idField
         }
       }
-    `);
+    `),
+  },
+];
 
-    const documents = [
-      { document: queryDocument, location: "authors.gql" },
-      { document: mutationDocument, location: "createAuthor.gql" },
-    ];
-
-    const config = getConfig({ documents });
+describe("typed-files-modules", () => {
+  it("should not have any output when there are no documents", async () => {
+    const config = getConfig();
     const output = await codegen(config);
 
-    expect(output).toMatchInlineSnapshot(`
-      "declare module \\"*/authors.gql\\" {
-        import { TypedDocumentNode } from \\"@apollo/client\\";
-        import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
-        export const authors: TypedDocumentNode<AuthorsQuery, AuthorsQueryVariables>;
-        import { AlsoAuthorsQuery, AlsoAuthorsQueryVariables } from \\"@codegen-types\\";
-        export const alsoAuthors: TypedDocumentNode<AlsoAuthorsQuery, AlsoAuthorsQueryVariables>;
-      }
+    expect(output).toMatchInlineSnapshot(`""`);
+  });
 
-      declare module \\"*/createAuthor.gql\\" {
-        import { TypedDocumentNode } from \\"@apollo/client\\";
-        import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
-        export const createAuthor: TypedDocumentNode<CreateAuthorMutation, CreateAuthorMutationVariables>;
-        import { AlsoCreateAuthorMutation, AlsoCreateAuthorMutationVariables } from \\"@codegen-types\\";
-        export const alsoCreateAuthor: TypedDocumentNode<AlsoCreateAuthorMutation, AlsoCreateAuthorMutationVariables>;
-      }"
-    `);
+  it("should have ambient module declarations for each document", async () => {
+    const config = getConfig({ documents: singleOpDocuments });
+    const output = await codegen(config);
+
+    expect(output).toMatchSnapshot();
+  });
+
+  it("should not have default exports for multiple operations", async () => {
+    const config = getConfig({ documents: multiOpDocuments });
+    const output = await codegen(config);
+
+    expect(output).toMatchSnapshot();
+  });
+
+  it("should not have default exports if specifically excluded", async () => {
+    const config = getConfig(
+      { documents: singleOpDocuments },
+      { excludeDefaultExports: true }
+    );
+    const output = await codegen(config);
+    expect(output).toMatchSnapshot();
   });
 
   describe("module path customization", () => {
-    const queryDocument = parse(`
-      query authors {
-        authors {
-          idField
-        }
-      }
-    `);
-
-    const mutationDocument = parse(`
-      mutation createAuthor {
-        createAuthor {
-          idField
-        }
-      }
-    `);
-
-    const documents = [
-      { document: queryDocument, location: "literary/types/authors.gql" },
-      { document: mutationDocument, location: "mutations/createAuthor.gql" },
-    ];
+    const documents = singleOpDocuments;
 
     it("wildcards the basename by default", async () => {
       const config = getConfig({ documents });
       const output = await codegen(config);
 
-      expect(output).toMatchInlineSnapshot(`
-        "declare module \\"*/authors.gql\\" {
-          import { TypedDocumentNode } from \\"@apollo/client\\";
-          import { AuthorsQuery, AuthorsQueryVariables } from \\"@codegen-types\\";
-          export const authors: TypedDocumentNode<AuthorsQuery, AuthorsQueryVariables>;
-          export default authors;
-        }
-
-        declare module \\"*/createAuthor.gql\\" {
-          import { TypedDocumentNode } from \\"@apollo/client\\";
-          import { CreateAuthorMutation, CreateAuthorMutationVariables } from \\"@codegen-types\\";
-          export const createAuthor: TypedDocumentNode<CreateAuthorMutation, CreateAuthorMutationVariables>;
-          export default createAuthor;
-        }"
-      `);
+      expect(output).toMatchSnapshot();
     });
 
     it("respects the relativeToCwd setting", async () => {
@@ -196,10 +147,10 @@ describe("codegenTypedDocuments", () => {
       const output = await codegen(config);
 
       expect(output).toEqual(
-        expect.stringContaining(`declare module "*/literary/types/authors.gql"`)
+        expect.stringContaining(`declare module "*/authors.gql"`)
       );
       expect(output).toEqual(
-        expect.stringContaining(`declare module "*/mutations/createAuthor.gql"`)
+        expect.stringContaining(`declare module "*/createAuthor.gql"`)
       );
     });
 
@@ -215,38 +166,47 @@ describe("codegenTypedDocuments", () => {
       );
     });
 
-    it("respects the modulePathPrefix setting", async () => {
-      const config = getConfig({ documents }, { modulePathPrefix: "stuff/" });
-      const output = await codegen(config);
-
-      expect(output).toEqual(
-        expect.stringContaining(`declare module "*/stuff/authors.gql"`)
-      );
-      expect(output).toEqual(
-        expect.stringContaining(`declare module "*/stuff/createAuthor.gql"`)
-      );
-    });
-
     it("allows combining path settings", async () => {
       const config = getConfig(
         { documents },
-        {
-          prefix: "",
-          modulePathPrefix: "defs/",
-          relativeToCwd: true,
-        }
+        { prefix: "defs/", relativeToCwd: true }
       );
 
       const output = await codegen(config);
 
       expect(output).toEqual(
-        expect.stringContaining(
-          `declare module "defs/literary/types/authors.gql"`
-        )
+        expect.stringContaining(`declare module "defs/authors.gql"`)
       );
       expect(output).toEqual(
+        expect.stringContaining(`declare module "defs/createAuthor.gql"`)
+      );
+    });
+  });
+
+  describe("typedDocumentNodeModule", () => {
+    it("defaults to graphql code generator's definition", async () => {
+      const config = getConfig(
+        { documents: singleOpDocuments },
+        { typedDocumentNodeModule: undefined }
+      );
+
+      const output = await codegen(config);
+      expect(output).toEqual(
         expect.stringContaining(
-          `declare module "defs/mutations/createAuthor.gql"`
+          `import { TypedDocumentNode } from "@graphql-typed-document-node/core";`
+        )
+      );
+    });
+
+    it("can be customized", async () => {
+      const config = getConfig(
+        { documents: singleOpDocuments },
+        { typedDocumentNodeModule: "@apollo/client" }
+      );
+      const output = await codegen(config);
+      expect(output).toEqual(
+        expect.stringContaining(
+          `import { TypedDocumentNode } from "@apollo/client";`
         )
       );
     });
