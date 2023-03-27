@@ -2,7 +2,8 @@ import { codegen } from "@graphql-codegen/core";
 import { Types } from "@graphql-codegen/plugin-helpers";
 import { buildSchema, parse, printSchema } from "graphql";
 
-import * as codegenTypedDocuments from "..";
+import { TypedFilesModulesConfig } from "../config";
+import * as typedFilesModules from "../index";
 
 const schema = buildSchema(`
   type Author {
@@ -25,19 +26,19 @@ const schema = buildSchema(`
 
 const getConfig = (
   generateOptions: Partial<Types.GenerateOptions> = {},
-  pluginOptions: Partial<codegenTypedDocuments.UserConfig> = {}
+  pluginOptions: Partial<TypedFilesModulesConfig> = {}
 ): Types.GenerateOptions => ({
   filename: "not-relevant",
   schema: parse(printSchema(schema)),
   plugins: [
     {
-      codegenTypedDocuments: {
+      typedFilesModules: {
         typesModule: "@codegen-types",
         ...pluginOptions,
       },
     },
   ],
-  pluginMap: { codegenTypedDocuments },
+  pluginMap: { typedFilesModules },
   config: {},
   documents: [],
   ...generateOptions,

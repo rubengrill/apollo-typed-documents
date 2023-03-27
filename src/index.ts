@@ -4,35 +4,10 @@ import {
 } from "@graphql-codegen/plugin-helpers";
 import { visit } from "graphql";
 
+import { TypedFilesModulesConfig } from "./config";
 import TypedDocumentVisitor from "./visitors/TypedDocumentVisitor";
 
-export type UserConfig = {
-  typesModule: string;
-
-  /**
-   * @default ""
-   * @description Allows specifying a module definition path prefix to provide
-   * distinction between generated types.
-   */
-  modulePathPrefix?: string;
-
-  /**
-   * @default false
-   * @description By default, only the filename is being used to generate TS
-   * module declarations. Setting this to `true` will generate it with a full
-   * path based on the CWD.
-   */
-  relativeToCwd?: boolean;
-
-  /**
-   * @default *\/
-   * @description By default, a wildcard is being added as prefix, you can
-   * change that to a custom prefix.
-   */
-  prefix?: string;
-};
-
-export const plugin: PluginFunction<UserConfig> = (
+export const plugin: PluginFunction<TypedFilesModulesConfig> = (
   _schema,
   documents,
   { typesModule, modulePathPrefix = "", relativeToCwd, prefix = "*/" }
@@ -40,7 +15,7 @@ export const plugin: PluginFunction<UserConfig> = (
   const config = {
     typesModule,
     modulePathPrefix,
-    useRelative: relativeToCwd === true,
+    relativeToCwd: relativeToCwd === true,
     prefix,
   };
 
@@ -62,7 +37,7 @@ export const plugin: PluginFunction<UserConfig> = (
   return output.join("\n\n");
 };
 
-export const validate: PluginValidateFn<UserConfig> = (
+export const validate: PluginValidateFn<TypedFilesModulesConfig> = (
   _schema,
   _documents,
   config

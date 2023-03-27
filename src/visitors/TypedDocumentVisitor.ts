@@ -2,13 +2,9 @@ import { basename, relative } from "path";
 
 import { DefinitionNode, DocumentNode, OperationDefinitionNode } from "graphql";
 import { pascalCase } from "pascal-case";
+import { TypedFilesModulesConfig } from "src/config";
 
-export type Config = {
-  typesModule: string;
-  modulePathPrefix: string;
-  useRelative: boolean;
-  prefix: string;
-};
+type Config = Required<TypedFilesModulesConfig>;
 
 const isOperationDefinitionNode = (
   node: DefinitionNode
@@ -25,7 +21,7 @@ export default class TypedDocumentVisitor {
     const operationNodes = node.definitions.filter(isOperationDefinitionNode);
     const output: string[] = [];
 
-    const filepath = this.config.useRelative
+    const filepath = this.config.relativeToCwd
       ? relative(process.cwd(), this.location)
       : basename(this.location);
 

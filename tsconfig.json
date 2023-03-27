@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "allowJs": true,
+    "incremental": true,
     "outDir": "lib",
     "esModuleInterop": true,
-    "target": "ES5",
+    "module": "esnext",
+    "target": "es2018",
     "moduleResolution": "node",
     "declaration": true,
     "strict": true,
