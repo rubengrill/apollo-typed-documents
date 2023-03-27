@@ -1,15 +1,15 @@
 {
   "name": "apollo-typed-documents",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "Get type safety for your apollo documents.",
   "keywords": [
     "apollo",
     "graphql",
     "codegen"
   ],
-  "homepage": "https://github.com/rubengrill/apollo-typed-documents",
+  "homepage": "https://github.com/dleavitt/apollo-typed-documents",
   "repository": {
-    "url": "https://github.com/rubengrill/apollo-typed-documents",
+    "url": "https://github.com/dleavitt/apollo-typed-documents",
     "type": "git"
   },
   "author": "Ruben Grill <ruben@purelabs.io>",
